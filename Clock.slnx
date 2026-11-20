@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="../../File Utility/FileUtility/FileUtility/FileUtility.csproj" />
+  <Project Path="Clock/Clock.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
+</Solution>

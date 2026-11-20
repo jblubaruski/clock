@@ -1,0 +1,14 @@
+<Shell
+    x:Class="Clock.AppShell"
+    xmlns:local="clr-namespace:Clock"
+    xmlns:views="clr-namespace:Clock.Views"
+    Title="Clock"
+    Shell.FlyoutBehavior="Disabled"
+    Shell.NavBarIsVisible="false">
+
+    <ShellContent
+        Title="Home"
+        ContentTemplate="{DataTemplate views:MainPage}"
+        Route="MainPage"/>
+
+</Shell>

@@ -1,0 +1,13 @@
+﻿<Application xmlns:local="clr-namespace:Clock"
+             x:Class="Clock.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+        <x:Int32 x:Key="WindowWidth">500</x:Int32>
+        <x:Int32 x:Key="WindowHeight">500</x:Int32>
+    </Application.Resources>
+</Application>
