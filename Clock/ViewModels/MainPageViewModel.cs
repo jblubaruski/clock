@@ -16,7 +16,7 @@ namespace Clock.ViewModels
         // the span of time between each clock tick
         private static readonly TimeSpan TickInterval = new(0, 0, 1);
         // the start time of the clock
-        private static readonly TimeOnly StartTime = new(0, 0, 0);
+        private static readonly TimeOnly StartTime = new(0, 59, 50);
 
         // the object that holds and manages the time on the clock
         private ClockData? ClockData { get; set; }
@@ -91,11 +91,35 @@ namespace Clock.ViewModels
             else
                 App.LogNullObjectNotification(nameof(StartClock), nameof(ClockData));
         }
+
+        internal void StopClock()
+        {
+            if (ClockData != null)
+                ClockData.StopClock(false);
+            else
+                App.LogNullObjectNotification(nameof(StartClock), nameof(ClockData));
+        }
         
         // called when TickReciever recieves a tick notification
         private void ClockTicked(TimeContainer timeData)
         {
-            App.Logger?.LogEntry($"Clock Ticked at {TimeOnly.FromDateTime(timeData.Time):T}");
+            if (ClockFace != null)
+            {
+                int currentHour = timeData.Time.Hour;
+                int currentMinute = timeData.Time.Minute;
+                int currentSecond = timeData.Time.Second;
+
+                ClockFace.HourHandRotation = currentHour * ClockFace.HOUR_TICK_ROTATION;
+                ClockFace.MinuteHandRotation = currentMinute * ClockFace.MINUTE_TICK_ROTATION;
+                ClockFace.SecondHandRotation = currentSecond * ClockFace.MINUTE_TICK_ROTATION;
+
+                InvalidateCanvasRequested?.Invoke();
+            }
+            else
+            {
+                App.LogNullObjectNotification(nameof(ClockTicked), nameof(ClockFace));
+                StopClock();
+            }
         }
 
         // called when TickReciever recieves a notice that the clock is done ticking

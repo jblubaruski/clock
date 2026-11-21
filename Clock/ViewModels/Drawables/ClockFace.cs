@@ -11,31 +11,31 @@ namespace Clock.ViewModels.Drawables
     /// </summary>
     public class ClockFace : IDrawable
     {
-        public const float RIM_OUTER_RADIUS = 170.0f;
-        public const float RIM_INNER_RADIUS = 150.0f;
-        public const float TICK_MARK_START_SCALE = 1.0f;
-        public const float HOUR_TICK_MARK_END_SCALE = 0.8f;
-        public const float MINUTE_TICK_MARK_END_SCALE = 0.9f;
-        public const float SECOND_HAND_START_SCALE = 0.1f;
-        public const float SECOND_HAND_END_SCALE = 0.85f;
-        public const float MINUTE_HAND_START_SCALE = 0.075f;
-        public const float MINUTE_HAND_END_SCALE = 0.7f;
-        public const float HOUR_HAND_START_SCALE = 0.05f;
-        public const float HOUR_HAND_END_SCALE = 0.5f;
+        private const float RIM_OUTER_RADIUS = 170.0f;
+        private const float RIM_INNER_RADIUS = 150.0f;
+        private const float TICK_MARK_START_SCALE = 1.0f;
+        private const float HOUR_TICK_MARK_END_SCALE = 0.8f;
+        private const float MINUTE_TICK_MARK_END_SCALE = 0.9f;
+        private const float SECOND_HAND_START_SCALE = 0.1f;
+        private const float SECOND_HAND_END_SCALE = 0.85f;
+        private const float MINUTE_HAND_START_SCALE = 0.075f;
+        private const float MINUTE_HAND_END_SCALE = 0.7f;
+        private const float HOUR_HAND_START_SCALE = 0.05f;
+        private const float HOUR_HAND_END_SCALE = 0.5f;
 
-        public const float RIM_STROKE_SIZE = 4;
-        public const float HOUR_TICK_MARK_STROKE_SIZE = 3;
-        public const float MINUTE_TICK_MARK_STROKE_SIZE = 2;
-        public const float SECOND_HAND_STROKE_SIZE = 1;
-        public const float MINUTE_HAND_STROKE_SIZE = 3;
-        public const float HOUR_HAND_STROKE_SIZE = 4;
+        private const float RIM_STROKE_SIZE = 4;
+        private const float HOUR_TICK_MARK_STROKE_SIZE = 3;
+        private const float MINUTE_TICK_MARK_STROKE_SIZE = 2;
+        private const float SECOND_HAND_STROKE_SIZE = 1;
+        private const float MINUTE_HAND_STROKE_SIZE = 3;
+        private const float HOUR_HAND_STROKE_SIZE = 4;
 
-        public static readonly Color RIM_STROKE_COLOR = Colors.Black;
-        public static readonly Color HOUR_TICK_MARK_STROKE_COLOR = Colors.DarkGray;
-        public static readonly Color MINUTE_TICK_MARK_STROKE_COLOR = Colors.Gray;
-        public static readonly Color SECOND_HAND_STROKE_COLOR = Colors.Red;
-        public static readonly Color MINUTE_HAND_STROKE_COLOR = Colors.Green;
-        public static readonly Color HOUR_HAND_STROKE_COLOR = Colors.Blue;
+        private static readonly Color RIM_STROKE_COLOR = Colors.Black;
+        private static readonly Color HOUR_TICK_MARK_STROKE_COLOR = Colors.DarkGray;
+        private static readonly Color MINUTE_TICK_MARK_STROKE_COLOR = Colors.Gray;
+        private static readonly Color SECOND_HAND_STROKE_COLOR = Colors.Red;
+        private static readonly Color MINUTE_HAND_STROKE_COLOR = Colors.Green;
+        private static readonly Color HOUR_HAND_STROKE_COLOR = Colors.Blue;
 
         // the rotations of the second, minute and hour hands
         // rotations are in radians with 0 radians at the top of the clock with numbers increasing in the clockwise direction
