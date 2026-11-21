@@ -11,7 +11,7 @@ public partial class MainPage : ContentPage
         SetupClockFace();
         SetupBindingContext();
 
-        ((MainPageViewModel)BindingContext).GiveClockDataToClockFace((ClockFace)graphicsView.Drawable);
+        ((MainPageViewModel)BindingContext).RecieveClockFace((ClockFace)graphicsView.Drawable);
     }
 
     private void SetupClockFace()
@@ -19,20 +19,20 @@ public partial class MainPage : ContentPage
         ClockFace clockFace = (ClockFace)graphicsView.Drawable;
 
         string key = "DefaultSecondHandRotation";
-        if (Resources.TryGetValue(key, out var value) == true && value is double shp)
-            clockFace.SecondHandRotation = shp;
+        if (Resources.TryGetValue(key, out var value) == true && value is double shr)
+            clockFace.SecondHandRotation = shr;
         else
             App.LogResourceError(nameof(SetupClockFace), key, nameof(MainPage), "Double");
 
         key = "DefaultMinuteHandRotation";
-        if (Resources.TryGetValue(key, out value) == true && value is double mhp)
-            clockFace.MinuteHandRotation = mhp;
+        if (Resources.TryGetValue(key, out value) == true && value is double mhr)
+            clockFace.MinuteHandRotation = mhr;
         else
             App.LogResourceError(nameof(SetupClockFace), key, nameof(MainPage), "Double");
 
         key = "DefaultHourHandRotation";
-        if (Resources.TryGetValue(key, out value) == true && value is double hhp)
-            clockFace.HourHandRotation = hhp;
+        if (Resources.TryGetValue(key, out value) == true && value is double hhr)
+            clockFace.HourHandRotation = hhr;
         else
             App.LogResourceError(nameof(SetupClockFace), key, nameof(MainPage), "Double");
 
@@ -42,5 +42,11 @@ public partial class MainPage : ContentPage
     private void SetupBindingContext()
     {
         BindingContext = new MainPageViewModel();
+        ((MainPageViewModel)BindingContext).InvalidateCanvasRequested += InvalidateCanvas;
+    }
+
+    private void InvalidateCanvas()
+    {
+        graphicsView.Invalidate();
     }
 }

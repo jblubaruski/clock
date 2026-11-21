@@ -9,23 +9,24 @@ namespace Clock.ViewModels
 {
     public partial class MainPageViewModel : ObservableObject
     {
-        private ClockData? Clock { get; set; }
+        private ClockData? ClockData { get; set; }
+        private ClockFace? ClockFace { get; set; }
 
-        public event Func<ClockFace>? ProvideClockFaceReferenceRequested;
+        public event Action? InvalidateCanvasRequested;
 
         public MainPageViewModel()
         {
             DispatcherProvider dispatcherProvider = new DispatcherProvider();
             IDispatcher? clockDispatcher = dispatcherProvider.GetForCurrentThread();
             if (clockDispatcher != null)
-                Clock = new(clockDispatcher);
+                ClockData = new(clockDispatcher);
             else
                 App.LogDispatcherNullError(nameof(MainPageViewModel));
         }
 
-        public void GiveClockDataToClockFace(ClockFace clockFace)
+        public void RecieveClockFace(ClockFace clockFace)
         {
-            clockFace.ClockData = Clock;
+            ClockFace = clockFace;
         }
     }
 }

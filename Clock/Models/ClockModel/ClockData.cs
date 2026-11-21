@@ -5,7 +5,9 @@ using System.Text;
 
 namespace Clock.Models.ClockModel
 {
-    // contains the time data for the clock and ticks on a regular interval
+    /// <summary>
+    /// Contains and manages the time on the clock as well as a provider that notifies subscribers of ticks.
+    /// </summary>
     public class ClockData
     {
         public NotificationProvider<TimeContainer> TickTransmitter { get; } = new();
