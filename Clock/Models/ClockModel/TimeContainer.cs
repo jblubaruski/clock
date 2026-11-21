@@ -4,8 +4,8 @@ using System.Text;
 
 namespace Clock.Models.ClockModel
 {
-    public sealed class TimeContainer
+    public sealed class TimeContainer(DateTime time)
     {
-
+        public DateTime Time { get; } = time;
     }
 }
