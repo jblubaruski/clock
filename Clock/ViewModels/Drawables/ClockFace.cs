@@ -1,5 +1,4 @@
-﻿using Clock.Models.ClockModel;
-using Clock.Services.Drawing;
+﻿using Clock.Services.Drawing;
 using System;
 using System.Collections.Generic;
 using System.Text;

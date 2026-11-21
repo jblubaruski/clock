@@ -95,14 +95,17 @@ namespace Clock
         /// </summary>
         /// 
         /// <param name="callLocation">
-        /// The location of the dispatcher retrieval call.
+        /// The location of the null object.
         /// </param>
-        public static void LogDispatcherNullError(string callLocation)
+        /// <param name="objectName">
+        /// The name of the null object.
+        /// </param>
+        public static void LogNullObjectNotification(string callLocation, string objectName)
         {
             Logger?.LogEntry
                 (
                     $"In {callLocation}:",
-                    $"The {nameof(DispatcherProvider)} returned a null reference after a call to {nameof(DispatcherProvider.GetForCurrentThread)}"
+                    $"{objectName} is null"
                 );
         }
     }

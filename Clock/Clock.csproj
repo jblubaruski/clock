@@ -69,4 +69,8 @@
 	  <ProjectReference Include="..\..\..\File Utility\FileUtility\FileUtility\FileUtility.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Services\Logging\" />
+	</ItemGroup>
+
 </Project>

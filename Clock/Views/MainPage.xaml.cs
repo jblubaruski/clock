@@ -3,6 +3,9 @@ using Clock.ViewModels.Drawables;
 
 namespace Clock.Views;
 
+/// <summary>
+/// Code-behind for MainPage.
+/// </summary>
 public partial class MainPage : ContentPage
 {
     public MainPage()
@@ -11,7 +14,9 @@ public partial class MainPage : ContentPage
         SetupClockFace();
         SetupBindingContext();
 
-        ((MainPageViewModel)BindingContext).RecieveClockFace((ClockFace)graphicsView.Drawable);
+        ((MainPageViewModel)BindingContext).ClockFace = (ClockFace)graphicsView.Drawable;
+        ((MainPageViewModel)BindingContext).SetClockFaceLock(true);
+        ((MainPageViewModel)BindingContext).StartClock();
     }
 
     private void SetupClockFace()
