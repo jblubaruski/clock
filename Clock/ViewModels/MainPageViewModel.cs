@@ -1,5 +1,6 @@
 ﻿using Clock.Models.ClockModel;
 using Clock.Models.Notifications;
+using Clock.Services.Logging;
 using Clock.ViewModels.Drawables;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
@@ -16,7 +17,7 @@ namespace Clock.ViewModels
         // the span of time between each clock tick
         private static readonly TimeSpan TickInterval = new(0, 0, 1);
         // the start time of the clock
-        private static readonly TimeOnly StartTime = new(0, 59, 50);
+        private static readonly TimeOnly StartTime = new(0, 0, 0);
 
         // the object that holds and manages the time on the clock
         private ClockData? ClockData { get; set; }
@@ -59,7 +60,7 @@ namespace Clock.ViewModels
             if (clockDispatcher != null)
                 ClockData = new(clockDispatcher, TickInterval);
             else
-                App.LogNullObjectNotification(nameof(MainPageViewModel), nameof(clockDispatcher));
+                LoggingUtility.LogNullObjectNotification(nameof(MainPageViewModel), nameof(clockDispatcher));
 
             if (ClockData != null)
             {
@@ -68,7 +69,7 @@ namespace Clock.ViewModels
             }
             else
             {
-                App.LogNullObjectNotification(nameof(MainPageViewModel), nameof(ClockData));
+                LoggingUtility.LogNullObjectNotification(nameof(MainPageViewModel), nameof(ClockData));
             }
         }
 
@@ -89,7 +90,7 @@ namespace Clock.ViewModels
             if (ClockData != null)
                 ClockData.StartClock(new(new(2026, 1, 1), StartTime));
             else
-                App.LogNullObjectNotification(nameof(StartClock), nameof(ClockData));
+                LoggingUtility.LogNullObjectNotification(nameof(StartClock), nameof(ClockData));
         }
 
         internal void StopClock()
@@ -97,7 +98,7 @@ namespace Clock.ViewModels
             if (ClockData != null)
                 ClockData.StopClock(false);
             else
-                App.LogNullObjectNotification(nameof(StartClock), nameof(ClockData));
+                LoggingUtility.LogNullObjectNotification(nameof(StartClock), nameof(ClockData));
         }
         
         // called when TickReciever recieves a tick notification
@@ -117,7 +118,7 @@ namespace Clock.ViewModels
             }
             else
             {
-                App.LogNullObjectNotification(nameof(ClockTicked), nameof(ClockFace));
+                LoggingUtility.LogNullObjectNotification(nameof(ClockTicked), nameof(ClockFace));
                 StopClock();
             }
         }

@@ -1,4 +1,5 @@
-﻿using Clock.ViewModels;
+﻿using Clock.Services.Logging;
+using Clock.ViewModels;
 using Clock.ViewModels.Drawables;
 
 namespace Clock.Views;
@@ -13,9 +14,6 @@ public partial class MainPage : ContentPage
         InitializeComponent();
         SetupClockFace();
         SetupBindingContext();
-
-        ((MainPageViewModel)BindingContext).ClockFace = (ClockFace)graphicsView.Drawable;
-        ((MainPageViewModel)BindingContext).SetClockFaceLock(true);
         ((MainPageViewModel)BindingContext).StartClock();
     }
 
@@ -27,19 +25,19 @@ public partial class MainPage : ContentPage
         if (Resources.TryGetValue(key, out var value) == true && value is double shr)
             clockFace.SecondHandRotation = shr;
         else
-            App.LogResourceError(nameof(SetupClockFace), key, nameof(MainPage), "Double");
+            LoggingUtility.LogResourceError(nameof(SetupClockFace), key, nameof(MainPage), "Double");
 
         key = "DefaultMinuteHandRotation";
         if (Resources.TryGetValue(key, out value) == true && value is double mhr)
             clockFace.MinuteHandRotation = mhr;
         else
-            App.LogResourceError(nameof(SetupClockFace), key, nameof(MainPage), "Double");
+            LoggingUtility.LogResourceError(nameof(SetupClockFace), key, nameof(MainPage), "Double");
 
         key = "DefaultHourHandRotation";
         if (Resources.TryGetValue(key, out value) == true && value is double hhr)
             clockFace.HourHandRotation = hhr;
         else
-            App.LogResourceError(nameof(SetupClockFace), key, nameof(MainPage), "Double");
+            LoggingUtility.LogResourceError(nameof(SetupClockFace), key, nameof(MainPage), "Double");
 
         graphicsView.Invalidate();
     }
@@ -48,6 +46,8 @@ public partial class MainPage : ContentPage
     {
         BindingContext = new MainPageViewModel();
         ((MainPageViewModel)BindingContext).InvalidateCanvasRequested += InvalidateCanvas;
+        ((MainPageViewModel)BindingContext).ClockFace = (ClockFace)graphicsView.Drawable;
+        ((MainPageViewModel)BindingContext).SetClockFaceLock(true);
     }
 
     private void InvalidateCanvas()

@@ -11,31 +11,7 @@ namespace Clock.ViewModels.Drawables
     /// </summary>
     public class ClockFace : IDrawable
     {
-        private const float RIM_OUTER_RADIUS = 170.0f;
-        private const float RIM_INNER_RADIUS = 150.0f;
-        private const float TICK_MARK_START_SCALE = 1.0f;
-        private const float HOUR_TICK_MARK_END_SCALE = 0.8f;
-        private const float MINUTE_TICK_MARK_END_SCALE = 0.9f;
-        private const float SECOND_HAND_START_SCALE = 0.1f;
-        private const float SECOND_HAND_END_SCALE = 0.85f;
-        private const float MINUTE_HAND_START_SCALE = 0.075f;
-        private const float MINUTE_HAND_END_SCALE = 0.7f;
-        private const float HOUR_HAND_START_SCALE = 0.05f;
-        private const float HOUR_HAND_END_SCALE = 0.5f;
-
-        private const float RIM_STROKE_SIZE = 4;
-        private const float HOUR_TICK_MARK_STROKE_SIZE = 3;
-        private const float MINUTE_TICK_MARK_STROKE_SIZE = 2;
-        private const float SECOND_HAND_STROKE_SIZE = 1;
-        private const float MINUTE_HAND_STROKE_SIZE = 3;
-        private const float HOUR_HAND_STROKE_SIZE = 4;
-
-        private static readonly Color RIM_STROKE_COLOR = Colors.Black;
-        private static readonly Color HOUR_TICK_MARK_STROKE_COLOR = Colors.DarkGray;
-        private static readonly Color MINUTE_TICK_MARK_STROKE_COLOR = Colors.Gray;
-        private static readonly Color SECOND_HAND_STROKE_COLOR = Colors.Red;
-        private static readonly Color MINUTE_HAND_STROKE_COLOR = Colors.Green;
-        private static readonly Color HOUR_HAND_STROKE_COLOR = Colors.Blue;
+        public ClockFaceDrawData drawData = new();
 
         // the rotations of the second, minute and hour hands
         // rotations are in radians with 0 radians at the top of the clock with numbers increasing in the clockwise direction
@@ -63,50 +39,52 @@ namespace Clock.ViewModels.Drawables
             DrawRim(canvas, canvasData);
             DrawHourTickMarks(canvas, canvasData);
             DrawMinuteTickMarks(canvas, canvasData);
-            DrawHand(canvas, canvasData, SECOND_HAND_STROKE_COLOR, SECOND_HAND_STROKE_SIZE, SECOND_HAND_START_SCALE, SECOND_HAND_END_SCALE, (float)SecondHandRotation);
-            DrawHand(canvas, canvasData, MINUTE_HAND_STROKE_COLOR, MINUTE_HAND_STROKE_SIZE, MINUTE_HAND_START_SCALE, MINUTE_HAND_END_SCALE, (float)MinuteHandRotation);
-            DrawHand(canvas, canvasData, HOUR_HAND_STROKE_COLOR, HOUR_HAND_STROKE_SIZE, HOUR_HAND_START_SCALE, HOUR_HAND_END_SCALE, (float)HourHandRotation);
+            DrawHand(canvas, canvasData, drawData.SecondHandStrokeColor, drawData.SecondHandStrokeSize, drawData.SecondHandStartScale, drawData.SecondHandEndScale, (float)SecondHandRotation);
+            DrawHand(canvas, canvasData, drawData.MinuteHandStrokeColor, drawData.MinuteHandStrokeSize, drawData.MinuteHandStartScale, drawData.MinuteHandEndScale, (float)MinuteHandRotation);
+            DrawHand(canvas, canvasData, drawData.HourHandStrokeColor, drawData.HourHandStrokeSize, drawData.HourHandStartScale, drawData.HourHandEndScale, (float)HourHandRotation);
         }
 
         // draws the rim
-        private static void DrawRim(ICanvas canvas, RectF canvasData)
+        private void DrawRim(ICanvas canvas, RectF canvasData)
         {
-            canvas.StrokeColor = RIM_STROKE_COLOR;
-            canvas.StrokeSize = RIM_STROKE_SIZE;
+            canvas.StrokeColor = drawData.RimStrokeColor;
+            canvas.StrokeSize = drawData.RimStrokeSize;
 
-            canvas.DrawCircle(canvasData.Center, RIM_OUTER_RADIUS);
-            canvas.DrawCircle(canvasData.Center, RIM_INNER_RADIUS);
+            canvas.DrawCircle(canvasData.Center, drawData.RimOuterRadius);
+            canvas.DrawCircle(canvasData.Center, drawData.RimInnerRadius);
         }
 
         // draws the hour tick marks
-        private static void DrawHourTickMarks(ICanvas canvas, RectF canvasData)
+        private void DrawHourTickMarks(ICanvas canvas, RectF canvasData)
         {
-            canvas.StrokeColor = HOUR_TICK_MARK_STROKE_COLOR;
-            canvas.StrokeSize = HOUR_TICK_MARK_STROKE_SIZE;
+            canvas.StrokeColor = drawData.HourTickMarkStrokeColor;
+            canvas.StrokeSize = drawData.HourTickMarkStrokeSize;
             for (int hour = 0; hour < 12; hour++)
             {
                 double theta = hour * HOUR_TICK_ROTATION;
-
-                PointF lineStart = DrawMath.GetScaledRadialLineEndPoint(canvasData.Center, RIM_INNER_RADIUS - RIM_STROKE_SIZE / 2, TICK_MARK_START_SCALE, (float)theta, false);
-                PointF lineEnd = DrawMath.GetScaledRadialLineEndPoint(canvasData.Center, RIM_INNER_RADIUS - RIM_STROKE_SIZE / 2, HOUR_TICK_MARK_END_SCALE, (float)theta, false);
+                float distance = drawData.RimInnerRadius - drawData.RimStrokeSize / 2;
+                
+                PointF lineStart = DrawMath.GetScaledRadialLineEndPoint(canvasData.Center, distance, drawData.TickMarkStartScale, (float)theta, false);
+                PointF lineEnd = DrawMath.GetScaledRadialLineEndPoint(canvasData.Center, distance, drawData.HourTickMarkEndScale, (float)theta, false);
 
                 canvas.DrawLine(lineStart, lineEnd);
             }
         }
 
         // draws the minute tick marks
-        private static void DrawMinuteTickMarks(ICanvas canvas, RectF canvasData)
+        private void DrawMinuteTickMarks(ICanvas canvas, RectF canvasData)
         {
-            canvas.StrokeColor = MINUTE_TICK_MARK_STROKE_COLOR;
-            canvas.StrokeSize = MINUTE_TICK_MARK_STROKE_SIZE;
+            canvas.StrokeColor = drawData.MinuteTickMarkStrokeColor;
+            canvas.StrokeSize = drawData.MinuteTickMarkStrokeSize;
             for (int minute = 0; minute < 60; minute++)
             {
                 if (minute % 5 != 0)
                 {
                     double theta = minute * MINUTE_TICK_ROTATION;
+                    float distance = drawData.RimInnerRadius - drawData.RimStrokeSize / 2;
 
-                    PointF lineStart = DrawMath.GetScaledRadialLineEndPoint(canvasData.Center, RIM_INNER_RADIUS - RIM_STROKE_SIZE / 2, TICK_MARK_START_SCALE, (float)theta, false);
-                    PointF lineEnd = DrawMath.GetScaledRadialLineEndPoint(canvasData.Center, RIM_INNER_RADIUS - RIM_STROKE_SIZE / 2, MINUTE_TICK_MARK_END_SCALE, (float)theta, false);
+                    PointF lineStart = DrawMath.GetScaledRadialLineEndPoint(canvasData.Center, distance, drawData.TickMarkStartScale, (float)theta, false);
+                    PointF lineEnd = DrawMath.GetScaledRadialLineEndPoint(canvasData.Center, distance, drawData.MinuteTickMarkEndScale, (float)theta, false);
 
                     canvas.DrawLine(lineStart, lineEnd);
                 }
@@ -114,13 +92,15 @@ namespace Clock.ViewModels.Drawables
         }
 
         // draws a clock hand
-        private static void DrawHand(ICanvas canvas, RectF canvasData, Color strokeColor, float strokeSize, float startScale, float endScale, float theta)
+        private void DrawHand(ICanvas canvas, RectF canvasData, Color strokeColor, float strokeSize, float startScale, float endScale, float theta)
         {
             canvas.StrokeColor = strokeColor;
             canvas.StrokeSize = strokeSize;
 
-            PointF lineStart = DrawMath.GetScaledRadialLineEndPoint(canvasData.Center, RIM_INNER_RADIUS - RIM_STROKE_SIZE / 2, startScale, theta, true);
-            PointF lineEnd = DrawMath.GetScaledRadialLineEndPoint(canvasData.Center, RIM_INNER_RADIUS - RIM_STROKE_SIZE / 2, endScale, theta, false);
+            float distance = drawData.RimInnerRadius - drawData.RimStrokeSize / 2;
+
+            PointF lineStart = DrawMath.GetScaledRadialLineEndPoint(canvasData.Center, distance, startScale, theta, true);
+            PointF lineEnd = DrawMath.GetScaledRadialLineEndPoint(canvasData.Center, distance, endScale, theta, false);
 
             canvas.DrawLine(lineStart, lineEnd);
         }
