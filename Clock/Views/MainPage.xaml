@@ -33,6 +33,8 @@
             Grid.Row="0">
             <Button
                 Text="Use System Time"
+                Command="{Binding UseSystemTimeCommand}"
+                IsEnabled="{Binding IsUseSystemTimeButtonEnabled}"
                 Grid.Column="0"/>
             <Entry
                 Placeholder="Enter a custom time (hh:mm:ss)"
@@ -48,9 +50,13 @@
             Grid.Row="1">
             <Button
                 Text="Start Clock"
+                Command="{Binding StartClockButtonClickedCommand}"
+                IsEnabled="{Binding IsStartClockButtonEnabled}"
                 Grid.Column="0"/>
             <Button
                 Text="Stop Clock"
+                Command="{Binding StopClockButtonClickedCommand}"
+                IsEnabled="{Binding IsStopClockButtonEnabled}"
                 Grid.Column="1"/>
         </Grid>
         <!-- clock display -->

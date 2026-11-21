@@ -3,6 +3,7 @@ using Clock.Models.Notifications;
 using Clock.Services.Logging;
 using Clock.ViewModels.Drawables;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,9 +16,11 @@ namespace Clock.ViewModels
     public partial class MainPageViewModel : ObservableObject
     {
         // the span of time between each clock tick
-        private static readonly TimeSpan TickInterval = new(0, 0, 1);
+        private TimeSpan TickInterval = new(0, 0, 1);
         // the start time of the clock
-        private static readonly TimeOnly StartTime = new(0, 0, 0);
+        private TimeOnly StartTime = new(0, 0, 0);
+        // whether or not the clock uses the system time
+        private bool ClockUsesSystemTime = false;
 
         // the object that holds and manages the time on the clock
         private ClockData? ClockData { get; set; }
@@ -88,7 +91,10 @@ namespace Clock.ViewModels
         internal void StartClock()
         {
             if (ClockData != null)
-                ClockData.StartClock(new(new(2026, 1, 1), StartTime));
+                if (ClockUsesSystemTime)
+                    ClockData.StartClock(DateTime.Now);
+                else
+                    ClockData.StartClock(new(new(2026, 1, 1), StartTime));
             else
                 LoggingUtility.LogNullObjectNotification(nameof(StartClock), nameof(ClockData));
         }
@@ -106,15 +112,7 @@ namespace Clock.ViewModels
         {
             if (ClockFace != null)
             {
-                int currentHour = timeData.Time.Hour;
-                int currentMinute = timeData.Time.Minute;
-                int currentSecond = timeData.Time.Second;
-
-                ClockFace.HourHandRotation = currentHour * ClockFace.HOUR_TICK_ROTATION;
-                ClockFace.MinuteHandRotation = currentMinute * ClockFace.MINUTE_TICK_ROTATION;
-                ClockFace.SecondHandRotation = currentSecond * ClockFace.MINUTE_TICK_ROTATION;
-
-                InvalidateCanvasRequested?.Invoke();
+                SetClockHands(timeData.Time);
             }
             else
             {
@@ -133,6 +131,15 @@ namespace Clock.ViewModels
         private void ClockError(Exception ex)
         {
             
+        }
+
+        private void SetClockHands(DateTime time)
+        {
+            ClockFace?.HourHandRotation = time.Hour * ClockFace.HOUR_TICK_ROTATION;
+            ClockFace?.MinuteHandRotation = time.Minute * ClockFace.MINUTE_TICK_ROTATION;
+            ClockFace?.SecondHandRotation = time.Second * ClockFace.MINUTE_TICK_ROTATION;
+
+            InvalidateCanvasRequested?.Invoke();
         }
 
         /*
@@ -181,7 +188,52 @@ namespace Clock.ViewModels
          * COMMANDS
          */
 
+        // runs when the user clicks the use system time button
+        [RelayCommand(CanExecute = nameof(UseSystemTimeCanExecute))]
+        void UseSystemTime()
+        {
+            if (ClockFace != null)
+            {
+                ToUseSystemTimeButtonPressedState();
 
+                DateTime currentTime = DateTime.Now;
+                StartTime = TimeOnly.FromDateTime(currentTime);
+
+                SetClockHands(currentTime);
+            }
+            else
+            {
+                LoggingUtility.LogNullObjectNotification(nameof(UseSystemTime), nameof(ClockFace));
+            }
+        }
+        bool UseSystemTimeCanExecute()
+        {
+            return IsUseSystemTimeButtonEnabled;
+        }
+
+        // runs when the user clicks the start clock button
+        [RelayCommand(CanExecute = nameof(StartClockButtonClickedCanExecute))]
+        void StartClockButtonClicked()
+        {
+            ToStartClockButtonPressedState();
+            StartClock();
+        }
+        bool StartClockButtonClickedCanExecute()
+        {
+            return IsStartClockButtonEnabled;
+        }
+
+        // runs when the user clicks the stop clock button
+        [RelayCommand(CanExecute = nameof(StopClockButtonClickedCanExecute))]
+        void StopClockButtonClicked()
+        {
+            ToStopClockButtonPressedState();
+            StopClock();
+        }
+        bool StopClockButtonClickedCanExecute()
+        {
+            return IsStopClockButtonEnabled;
+        }
 
         /*
          * STATE TRANSITIONS
@@ -194,12 +246,16 @@ namespace Clock.ViewModels
             IsEnterCustomTimeEntryEnabled = true;
             IsStartClockButtonEnabled = false;
             IsStopClockButtonEnabled = false;
+
+            ClockUsesSystemTime = false;
         }
 
         // transitions to the use-system-time-button-pressed state
         private void ToUseSystemTimeButtonPressedState()
         {
             IsStartClockButtonEnabled = true;
+
+            ClockUsesSystemTime = true;
         }
 
         // transitions to the custom-time-entered state
