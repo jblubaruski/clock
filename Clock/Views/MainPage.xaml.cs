@@ -9,12 +9,11 @@ namespace Clock.Views;
 /// </summary>
 public partial class MainPage : ContentPage
 {
-    public MainPage()
+    public MainPage(MainPageViewModel viewModel)
     {
         InitializeComponent();
         SetupClockFace();
-        SetupBindingContext();
-        ((MainPageViewModel)BindingContext).StartClock();
+        SetupBindingContext(viewModel);
     }
 
     private void SetupClockFace()
@@ -42,9 +41,9 @@ public partial class MainPage : ContentPage
         graphicsView.Invalidate();
     }
 
-    private void SetupBindingContext()
+    private void SetupBindingContext(MainPageViewModel viewModel)
     {
-        BindingContext = new MainPageViewModel();
+        BindingContext = viewModel;
         ((MainPageViewModel)BindingContext).InvalidateCanvasRequested += InvalidateCanvas;
         ((MainPageViewModel)BindingContext).ClockFace = (ClockFace)graphicsView.Drawable;
         ((MainPageViewModel)BindingContext).SetClockFaceLock(true);

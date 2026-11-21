@@ -1,6 +1,7 @@
 ﻿<ContentPage 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     x:Class="Clock.Views.MainPage"
     xmlns:drawable="clr-namespace:Clock.ViewModels.Drawables"
     xmlns:viewmodel="clr-namespace:Clock.ViewModels"
@@ -8,19 +9,55 @@
     x:DataType="viewmodel:MainPageViewModel">
 
     <ContentPage.Resources>
+        <toolkit:MathExpressionConverter x:Key="MathExpressionConverter"/>
+        
         <drawable:ClockFace x:Key="drawable"/>
         
         <x:Double x:Key="DefaultSecondHandRotation">0.0</x:Double>
         <x:Double x:Key="DefaultMinuteHandRotation">0.0</x:Double>
         <x:Double x:Key="DefaultHourHandRotation">0.0</x:Double>
-        
-        
+
+        <Style x:Key="InvalidEntryStyle" TargetType="Entry">
+            <Setter Property="TextColor" Value="Red"/>
+        </Style>
+        <Style x:Key="ValidEntryStyle" TargetType="Entry">
+            <Setter Property="TextColor" Value="Black"/>
+        </Style>
     </ContentPage.Resources>
 
-    <Grid>
+    <Grid
+        RowDefinitions="Auto,Auto,*">
+        <!-- use system time / custom time controls -->
+        <Grid
+            ColumnDefinitions="*,*"
+            Grid.Row="0">
+            <Button
+                Text="Use System Time"
+                Grid.Column="0"/>
+            <Entry
+                Placeholder="Enter a custom time (hh:mm:ss)"
+                Grid.Column="1">
+                <Entry.Behaviors>
+                    <toolkit:MaskedBehavior Mask="XX:XX:XX"/>
+                </Entry.Behaviors>
+            </Entry>
+        </Grid>
+        <!-- start and stop clock buttons -->
+        <Grid
+            ColumnDefinitions="*,*"
+            Grid.Row="1">
+            <Button
+                Text="Start Clock"
+                Grid.Column="0"/>
+            <Button
+                Text="Stop Clock"
+                Grid.Column="1"/>
+        </Grid>
+        <!-- clock display -->
         <GraphicsView
             x:Name="graphicsView"
-            Drawable="{StaticResource drawable}"/>
+            Drawable="{StaticResource drawable}"
+            Grid.Row="2"/>
     </Grid>
 
 </ContentPage>

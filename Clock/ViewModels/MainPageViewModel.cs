@@ -134,5 +134,95 @@ namespace Clock.ViewModels
         {
             
         }
+
+        /*
+         * BINDABLE PROPERTIES
+         */
+
+        private bool _isUseSystemTimeButtonEnabled = true;
+        private bool _isEnterCustomTimeEntryEnabled = true;
+        private bool _isStartClockButtonEnabled = false;
+        private bool _isStopClockButtonEnabled = false;
+
+        /// <summary>
+        /// Determines whether or not the use system time button is enabled.
+        /// </summary>
+        public bool IsUseSystemTimeButtonEnabled
+        {
+            get => _isUseSystemTimeButtonEnabled;
+            set => SetProperty(ref _isUseSystemTimeButtonEnabled, value);
+        }
+        /// <summary>
+        /// Determines whether or not the enter custom time entry is enabled.
+        /// </summary>
+        public bool IsEnterCustomTimeEntryEnabled
+        {
+            get => _isEnterCustomTimeEntryEnabled;
+            set => SetProperty(ref _isEnterCustomTimeEntryEnabled, value);
+        }
+        /// <summary>
+        /// Determines whether or not the start clock button is enabled.
+        /// </summary>
+        public bool IsStartClockButtonEnabled
+        {
+            get => _isStartClockButtonEnabled;
+            set => SetProperty(ref _isStartClockButtonEnabled, value);
+        }
+        /// <summary>
+        /// Determines whether or not the stop clock button is enabled.
+        /// </summary>
+        public bool IsStopClockButtonEnabled
+        {
+            get => _isStopClockButtonEnabled;
+            set => SetProperty(ref _isStopClockButtonEnabled, value);
+        }
+
+        /*
+         * COMMANDS
+         */
+
+
+
+        /*
+         * STATE TRANSITIONS
+         */
+
+        // transitions the view model back to its base state
+        private void ToBaseState()
+        {
+            IsUseSystemTimeButtonEnabled = true;
+            IsEnterCustomTimeEntryEnabled = true;
+            IsStartClockButtonEnabled = false;
+            IsStopClockButtonEnabled = false;
+        }
+
+        // transitions to the use-system-time-button-pressed state
+        private void ToUseSystemTimeButtonPressedState()
+        {
+            IsStartClockButtonEnabled = true;
+        }
+
+        // transitions to the custom-time-entered state
+        private void ToCustomTimeEnteredState()
+        {
+            IsStartClockButtonEnabled = true;
+        }
+
+        // transitions to the start-clock-button-pressed state
+        private void ToStartClockButtonPressedState()
+        {
+            IsUseSystemTimeButtonEnabled = false;
+            IsEnterCustomTimeEntryEnabled = false;
+            IsStartClockButtonEnabled = false;
+            IsStopClockButtonEnabled = true;
+        }
+
+        // transitions to the stop-clock-button-pressed state
+        private void ToStopClockButtonPressedState()
+        {
+            IsUseSystemTimeButtonEnabled = true;
+            IsEnterCustomTimeEntryEnabled = true;
+            IsStopClockButtonEnabled = false;
+        }
     }
 }
