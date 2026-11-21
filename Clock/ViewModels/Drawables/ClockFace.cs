@@ -22,14 +22,14 @@ namespace Clock.ViewModels.Drawables
         public const float MINUTE_HAND_START_SCALE = 0.075f;
         public const float MINUTE_HAND_END_SCALE = 0.7f;
         public const float HOUR_HAND_START_SCALE = 0.05f;
-        public const float HOUR_HAND_END_SCALE = 0.6f;
+        public const float HOUR_HAND_END_SCALE = 0.5f;
 
         public const float RIM_STROKE_SIZE = 4;
         public const float HOUR_TICK_MARK_STROKE_SIZE = 3;
         public const float MINUTE_TICK_MARK_STROKE_SIZE = 2;
         public const float SECOND_HAND_STROKE_SIZE = 1;
-        public const float MINUTE_HAND_STROKE_SIZE = 2;
-        public const float HOUR_HAND_STROKE_SIZE = 2;
+        public const float MINUTE_HAND_STROKE_SIZE = 3;
+        public const float HOUR_HAND_STROKE_SIZE = 4;
 
         public static readonly Color RIM_STROKE_COLOR = Colors.Black;
         public static readonly Color HOUR_TICK_MARK_STROKE_COLOR = Colors.DarkGray;
@@ -64,9 +64,9 @@ namespace Clock.ViewModels.Drawables
             DrawRim(canvas, canvasData);
             DrawHourTickMarks(canvas, canvasData);
             DrawMinuteTickMarks(canvas, canvasData);
-            DrawSecondHand(canvas, canvasData);
-            DrawMinuteHand(canvas, canvasData);
-            DrawHourHand(canvas, canvasData);
+            DrawHand(canvas, canvasData, SECOND_HAND_STROKE_COLOR, SECOND_HAND_STROKE_SIZE, SECOND_HAND_START_SCALE, SECOND_HAND_END_SCALE, (float)SecondHandRotation);
+            DrawHand(canvas, canvasData, MINUTE_HAND_STROKE_COLOR, MINUTE_HAND_STROKE_SIZE, MINUTE_HAND_START_SCALE, MINUTE_HAND_END_SCALE, (float)MinuteHandRotation);
+            DrawHand(canvas, canvasData, HOUR_HAND_STROKE_COLOR, HOUR_HAND_STROKE_SIZE, HOUR_HAND_START_SCALE, HOUR_HAND_END_SCALE, (float)HourHandRotation);
         }
 
         // draws the rim
@@ -74,6 +74,7 @@ namespace Clock.ViewModels.Drawables
         {
             canvas.StrokeColor = RIM_STROKE_COLOR;
             canvas.StrokeSize = RIM_STROKE_SIZE;
+
             canvas.DrawCircle(canvasData.Center, RIM_OUTER_RADIUS);
             canvas.DrawCircle(canvasData.Center, RIM_INNER_RADIUS);
         }
@@ -113,23 +114,16 @@ namespace Clock.ViewModels.Drawables
             }
         }
 
-        // draws the second hand
-        private static void DrawSecondHand(ICanvas canvas, RectF canvasData)
+        // draws a clock hand
+        private static void DrawHand(ICanvas canvas, RectF canvasData, Color strokeColor, float strokeSize, float startScale, float endScale, float theta)
         {
-            canvas.StrokeColor = SECOND_HAND_STROKE_COLOR;
-            canvas.StrokeSize = SECOND_HAND_STROKE_SIZE;
-        }
+            canvas.StrokeColor = strokeColor;
+            canvas.StrokeSize = strokeSize;
 
-        // draws the minute hand
-        private static void DrawMinuteHand(ICanvas canvas, RectF canvasData)
-        {
+            PointF lineStart = DrawMath.GetScaledRadialLineEndPoint(canvasData.Center, RIM_INNER_RADIUS - RIM_STROKE_SIZE / 2, startScale, theta, true);
+            PointF lineEnd = DrawMath.GetScaledRadialLineEndPoint(canvasData.Center, RIM_INNER_RADIUS - RIM_STROKE_SIZE / 2, endScale, theta, false);
 
-        }
-
-        // draws the hour hand
-        private static void DrawHourHand(ICanvas canvas, RectF canvasData)
-        {
-
+            canvas.DrawLine(lineStart, lineEnd);
         }
     }
 }

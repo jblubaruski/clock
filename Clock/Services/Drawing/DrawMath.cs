@@ -34,14 +34,10 @@ namespace Clock.Services.Drawing
         /// </returns>
         public static PointF GetScaledRadialLineEndPoint(PointF center, float distance, float distanceScale, float theta, bool reverse)
         {
-            float pointX = center.X + distanceScale * distance * MathF.Sin(theta);
-            float pointY = center.Y - distanceScale * distance * MathF.Cos(theta);
+            int reversal = reverse ? -1 : 1;
 
-            if (reverse)
-            {
-                pointX *= -1;
-                pointY *= -1;
-            }
+            float pointX = center.X + reversal * distanceScale * distance * MathF.Sin(theta);
+            float pointY = center.Y - reversal * distanceScale * distance * MathF.Cos(theta);
 
             return new(pointX, pointY);
         }
