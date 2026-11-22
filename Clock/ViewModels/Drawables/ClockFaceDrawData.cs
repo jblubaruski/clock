@@ -10,8 +10,8 @@ namespace Clock.ViewModels.Drawables
     /// </summary>
     public class ClockFaceDrawData
     {
-        public readonly float RimOuterRadius = 170.0f;
-        public readonly float RimInnerRadius = 150.0f;
+        public readonly float RimOuterRadius = 160.0f;
+        public readonly float RimInnerRadius = 140.0f;
         public readonly float TickMarkStartScale = 1.0f;
         public readonly float HourTickMarkEndScale = 0.8f;
         public readonly float MinuteTickMarkEndScale = 0.9f;
@@ -37,5 +37,9 @@ namespace Clock.ViewModels.Drawables
         public readonly Color SecondHandStrokeColor = new (0, 0, 0);
         public readonly Color MinuteHandStrokeColor = new(20, 33, 61);
         public readonly Color HourHandStrokeColor = new(20, 33, 61);
+        public readonly Color WallStripeColor1 = new(255, 200, 221);
+        public readonly Color WallStripeColor2 = new(189, 224, 254);
+        
+        public readonly int NumberOfStripesOnWall = 7;
     }
 }

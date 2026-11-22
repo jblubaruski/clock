@@ -36,12 +36,34 @@ namespace Clock.ViewModels.Drawables
         /// </param>
         public void Draw(ICanvas canvas, RectF canvasData)
         {
+            DrawWall(canvas, canvasData);
             DrawRim(canvas, canvasData);
             DrawHourTickMarks(canvas, canvasData);
             DrawMinuteTickMarks(canvas, canvasData);
             DrawHand(canvas, canvasData, drawData.HourHandStrokeColor, drawData.HourHandStrokeSize, drawData.HourHandStartScale, drawData.HourHandEndScale, (float)HourHandRotation);
             DrawHand(canvas, canvasData, drawData.MinuteHandStrokeColor, drawData.MinuteHandStrokeSize, drawData.MinuteHandStartScale, drawData.MinuteHandEndScale, (float)MinuteHandRotation);
             DrawHand(canvas, canvasData, drawData.SecondHandStrokeColor, drawData.SecondHandStrokeSize, drawData.SecondHandStartScale, drawData.SecondHandEndScale, (float)SecondHandRotation);
+        }
+
+        // draws the wall behind the clock
+        private void DrawWall(ICanvas canvas, RectF canvasData)
+        {
+            float wallStripeThickness = canvasData.Width / drawData.NumberOfStripesOnWall;
+            bool paintingStripeColor1 = true;
+
+            for (int i = 0; i < drawData.NumberOfStripesOnWall; i++)
+            {
+                if (paintingStripeColor1)
+                    canvas.FillColor = drawData.WallStripeColor1;
+                else
+                    canvas.FillColor = drawData.WallStripeColor2;
+
+                paintingStripeColor1 = !paintingStripeColor1;
+
+                float leftX = canvasData.X + wallStripeThickness * i;
+                RectF stripeBox = new(leftX, canvasData.Y, wallStripeThickness, canvasData.Height);
+                canvas.FillRectangle(stripeBox);
+            }
         }
 
         // draws the rim
