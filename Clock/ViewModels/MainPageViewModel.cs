@@ -114,7 +114,10 @@ namespace Clock.ViewModels
         {
             if (ClockFace != null)
             {
-                SetClockHands(TimeOnly.FromDateTime(timeData.Time));
+                if (ClockUsesSystemTime)
+                    SetClockHands(TimeOnly.FromDateTime(DateTime.Now));
+                else
+                    SetClockHands(TimeOnly.FromDateTime(timeData.Time));
             }
             else
             {
@@ -143,6 +146,22 @@ namespace Clock.ViewModels
             ClockFace?.SecondHandRotation = time.Second * ClockFace.MINUTE_TICK_ROTATION;
 
             InvalidateCanvasRequested?.Invoke();
+        }
+
+        private static async Task WaitForNextSecond(DateTime currentTime)
+        {
+            int previousSecond = currentTime.Second;
+
+            bool currentSecondIsDifferentFromPreviousSecond = false;
+
+            do
+            {
+                int currentSecond = DateTime.Now.Second;
+
+                if (currentSecond != previousSecond)
+                    currentSecondIsDifferentFromPreviousSecond = true;
+
+            } while (!currentSecondIsDifferentFromPreviousSecond);
         }
 
         /*
@@ -201,8 +220,8 @@ namespace Clock.ViewModels
          */
 
         // runs when the user clicks the use system time button
-        [RelayCommand(CanExecute = nameof(UseSystemTimeCanExecute))]
-        void UseSystemTime()
+        [RelayCommand(AllowConcurrentExecutions = false, CanExecute = nameof(UseSystemTimeCanExecute))]
+        async Task UseSystemTime()
         {
             if (ClockFace != null)
             {
@@ -212,6 +231,8 @@ namespace Clock.ViewModels
                 StartTime = TimeOnly.FromDateTime(currentTime);
 
                 SetClockHands(TimeOnly.FromDateTime(currentTime));
+                await WaitForNextSecond(currentTime);
+                StartClock();
             }
             else
             {
@@ -227,7 +248,7 @@ namespace Clock.ViewModels
         [RelayCommand(CanExecute = nameof(EnterCustomTimeCanExecute))]
         void EnterCustomTime()
         {
-            if (TimeConverters.ConvertStringToTimeOnly(CustomTimeEntryText, out StartTime))
+            if (TimeConverters.ConvertStringToTimeOnly(CustomTimeEntryText, ":", out StartTime))
             {
                 ToCustomTimeEnteredState();
                 SetClockHands(StartTime);
@@ -285,7 +306,10 @@ namespace Clock.ViewModels
         // transitions to the use-system-time-button-pressed state
         private void ToUseSystemTimeButtonPressedState()
         {
-            IsStartClockButtonEnabled = true;
+            IsUseSystemTimeButtonEnabled = false;
+            IsEnterCustomTimeEntryEnabled = false;
+            IsStartClockButtonEnabled = false;
+            IsStopClockButtonEnabled = true;
 
             ClockUsesSystemTime = true;
         }

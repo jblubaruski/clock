@@ -27,7 +27,7 @@ namespace Clock
     		builder.Logging.AddDebug();
 #endif
 
-            // create a borderless entry mapping
+            // create a borderless entry box
             Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("BorderlessEntry", (handler, view) =>
             {
 #if WINDOWS

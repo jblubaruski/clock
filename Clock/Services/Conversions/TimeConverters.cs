@@ -13,9 +13,8 @@ namespace Clock.Services.Conversions
     {
         // returns a time only object from the passed in string
         // returns false if the conversion failed and logs an entry in the log file explaining the conversion failure
-        public static bool ConvertStringToTimeOnly(string timeString, out TimeOnly convertedTime)
+        public static bool ConvertStringToTimeOnly(string timeString, string timeDeliminator, out TimeOnly convertedTime)
         {
-            string timeDeliminator = ":";
             int sectionsInValidTimeStr = 3;
             int[] hourBounds = [0, 23];
             int[] minuteBounds = [0, 59];
