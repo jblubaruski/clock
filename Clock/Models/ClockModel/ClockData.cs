@@ -76,6 +76,11 @@ namespace Clock.Models.ClockModel
                 TickTransmitter.CompleteAll();
         }
 
+        /*
+         * TODO
+         * Edit TickClock() so it runs asynchronously and uses a while loop instead of a dispatcher.
+         */
+
         // ticks the clock once and returns whether or not the clock is currently running
         private bool TickClock()
         {
