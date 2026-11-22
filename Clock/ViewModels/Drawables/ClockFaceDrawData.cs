@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Clock.ViewModels.Drawables
@@ -28,11 +29,13 @@ namespace Clock.ViewModels.Drawables
         public readonly float MinuteHandStrokeSize = 3;
         public readonly float HourHandStrokeSize = 4;
 
-        public readonly Color RimStrokeColor = Colors.Black;
-        public readonly Color HourTickMarkStrokeColor = Colors.DarkGray;
-        public readonly Color MinuteTickMarkStrokeColor = Colors.Gray;
-        public readonly Color SecondHandStrokeColor = Colors.Red;
-        public readonly Color MinuteHandStrokeColor = Colors.Green;
-        public readonly Color HourHandStrokeColor = Colors.Blue;
+        public readonly Color RimStrokeColor = new(67, 40, 24);
+        public readonly Color RimFillColor = new(153, 88, 42);
+        public readonly Color FaceFillColor = new(250, 237, 205);
+        public readonly Color HourTickMarkStrokeColor = new(111, 29, 27);
+        public readonly Color MinuteTickMarkStrokeColor = new(111, 29, 27);
+        public readonly Color SecondHandStrokeColor = new (0, 0, 0);
+        public readonly Color MinuteHandStrokeColor = new(20, 33, 61);
+        public readonly Color HourHandStrokeColor = new(20, 33, 61);
     }
 }

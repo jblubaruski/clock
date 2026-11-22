@@ -39,17 +39,22 @@ namespace Clock.ViewModels.Drawables
             DrawRim(canvas, canvasData);
             DrawHourTickMarks(canvas, canvasData);
             DrawMinuteTickMarks(canvas, canvasData);
-            DrawHand(canvas, canvasData, drawData.SecondHandStrokeColor, drawData.SecondHandStrokeSize, drawData.SecondHandStartScale, drawData.SecondHandEndScale, (float)SecondHandRotation);
-            DrawHand(canvas, canvasData, drawData.MinuteHandStrokeColor, drawData.MinuteHandStrokeSize, drawData.MinuteHandStartScale, drawData.MinuteHandEndScale, (float)MinuteHandRotation);
             DrawHand(canvas, canvasData, drawData.HourHandStrokeColor, drawData.HourHandStrokeSize, drawData.HourHandStartScale, drawData.HourHandEndScale, (float)HourHandRotation);
+            DrawHand(canvas, canvasData, drawData.MinuteHandStrokeColor, drawData.MinuteHandStrokeSize, drawData.MinuteHandStartScale, drawData.MinuteHandEndScale, (float)MinuteHandRotation);
+            DrawHand(canvas, canvasData, drawData.SecondHandStrokeColor, drawData.SecondHandStrokeSize, drawData.SecondHandStartScale, drawData.SecondHandEndScale, (float)SecondHandRotation);
         }
 
         // draws the rim
         private void DrawRim(ICanvas canvas, RectF canvasData)
         {
+            canvas.FillColor = drawData.RimFillColor;
+            canvas.FillCircle(canvasData.Center, drawData.RimOuterRadius);
+
+            canvas.FillColor = drawData.FaceFillColor;
+            canvas.FillCircle(canvasData.Center, drawData.RimInnerRadius);
+
             canvas.StrokeColor = drawData.RimStrokeColor;
             canvas.StrokeSize = drawData.RimStrokeSize;
-
             canvas.DrawCircle(canvasData.Center, drawData.RimOuterRadius);
             canvas.DrawCircle(canvasData.Center, drawData.RimInnerRadius);
         }

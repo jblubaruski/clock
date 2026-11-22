@@ -17,11 +17,74 @@
         <x:Double x:Key="DefaultMinuteHandRotation">0.0</x:Double>
         <x:Double x:Key="DefaultHourHandRotation">0.0</x:Double>
 
-        <Style x:Key="InvalidEntryStyle" TargetType="Entry">
+        <Style x:Key="InvalidEntryTextStyle" TargetType="Entry" BasedOn="{StaticResource EntryStyle}">
             <Setter Property="TextColor" Value="Red"/>
         </Style>
-        <Style x:Key="ValidEntryStyle" TargetType="Entry">
+        <Style x:Key="ValidEntryTextStyle" TargetType="Entry" BasedOn="{StaticResource EntryStyle}">
             <Setter Property="TextColor" Value="Black"/>
+        </Style>
+        <Style x:Key="EntryStyle" TargetType="Entry">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="MinimumHeightRequest" Value="30"/>
+            <Setter Property="HeightRequest" Value="30"/>
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <!-- enabled state -->
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+
+                            </VisualState.Setters>
+                        </VisualState>
+                        <!-- disabled state -->
+                        <VisualState x:Name="Disabled">
+                            <VisualState.Setters>
+                                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <!-- pointer over state -->
+                        <VisualState x:Name="PointerOver">
+                            <VisualState.Setters>
+
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="BorderWidth" Value="0"/>
+            <Setter Property="CornerRadius" Value="2"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="MinimumHeightRequest" Value="30"/>
+            <Setter Property="HeightRequest" Value="30"/>
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <!-- enabled state -->
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+                                
+                            </VisualState.Setters>
+                        </VisualState>
+                        <!-- disabled state -->
+                        <VisualState x:Name="Disabled">
+                            <VisualState.Setters>
+                                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}" />
+                                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <!-- pointer over state -->
+                        <VisualState x:Name="PointerOver">
+                            <VisualState.Setters>
+
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
         </Style>
     </ContentPage.Resources>
 
@@ -33,6 +96,7 @@
             Grid.Row="0">
             <Button
                 Text="Use System Time"
+                Style="{StaticResource ButtonStyle}"
                 Command="{Binding UseSystemTimeCommand}"
                 IsEnabled="{Binding IsUseSystemTimeButtonEnabled}"
                 Grid.Column="0"/>
@@ -40,6 +104,7 @@
                 x:Name="enterCustomTimeEntryBox"
                 Placeholder="Enter a custom time (hh:mm:ss)"
                 Text="{Binding CustomTimeEntryText}"
+                Style="{StaticResource EntryStyle}"
                 ReturnCommand="{Binding EnterCustomTimeCommand}"
                 IsEnabled="{Binding IsEnterCustomTimeEntryEnabled}"
                 Grid.Column="1"/>
@@ -50,11 +115,13 @@
             Grid.Row="1">
             <Button
                 Text="Start Clock"
+                Style="{StaticResource ButtonStyle}"
                 Command="{Binding StartClockButtonClickedCommand}"
                 IsEnabled="{Binding IsStartClockButtonEnabled}"
                 Grid.Column="0"/>
             <Button
                 Text="Stop Clock"
+                Style="{StaticResource ButtonStyle}"
                 Command="{Binding StopClockButtonClickedCommand}"
                 IsEnabled="{Binding IsStopClockButtonEnabled}"
                 Grid.Column="1"/>

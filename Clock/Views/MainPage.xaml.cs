@@ -22,13 +22,13 @@ public partial class MainPage : ContentPage
 
     private void LoadResources()
     {
-        string key = "ValidEntryStyle";
+        string key = "ValidEntryTextStyle";
         if (Resources.TryGetValue(key, out var value) == true && value is Style ves)
             ValidEntryTextStyle = ves;
         else
             LoggingUtility.LogResourceError(nameof(SetupClockFace), key, nameof(MainPage), "Style");
 
-        key = "InvalidEntryStyle";
+        key = "InvalidEntryTextStyle";
         if (Resources.TryGetValue(key, out value) == true && value is Style ies)
             InvalidEntryTextStyle = ies;
         else
