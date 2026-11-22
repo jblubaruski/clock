@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.AccessControl;
 using System.Text;
 
 namespace Clock.Services.Logging
@@ -63,6 +64,81 @@ namespace Clock.Services.Logging
                 (
                     $"In {callLocation}:",
                     $"{objectName} is null"
+                );
+        }
+
+        /// <summary>
+        /// Logs an error caused by a string failing to parse into a number of a specified type.
+        /// </summary>
+        /// 
+        /// <param name="errorLocation">
+        /// The location of the error.
+        /// </param>
+        /// <param name="invalidString">
+        /// The string that failed to parse.
+        /// </param>
+        /// <param name="numberType">
+        /// The type the string was being parsed into.
+        /// </param>
+        public static void LogStringNotValidNumberError(string errorLocation, string invalidString, string numberType)
+        {
+            App.Logger?.LogEntry
+                (
+                    $"In {errorLocation}:",
+                    $"{invalidString} cannot be parsed into {numberType}"
+                );
+        }
+
+        /// <summary>
+        /// Logs an error caused by a number falling outside of an expected range.
+        /// </summary>
+        /// 
+        /// <param name="errorLocation">
+        /// The location of the error.
+        /// </param>
+        /// <param name="numberVaraiableName">
+        /// The name of the number's variable.
+        /// </param>
+        /// <param name="numberVariableValue">
+        /// The value of the number's variable.
+        /// </param>
+        /// <param name="numberBoundsMin">
+        /// The minimum value of the number's bounds (inclusive).
+        /// </param>
+        /// <param name="numberBoundsMax">
+        /// The maximum value of the number's bounds (inclusive).
+        /// </param>
+        public static void LogNumberOutsideOfBoundsError(string errorLocation, string numberVaraiableName, string numberVariableValue, string numberBoundsMin, string numberBoundsMax)
+        {
+            App.Logger?.LogEntry
+                (
+                    $"In {errorLocation}",
+                    $"the number in {numberVaraiableName} ({numberVariableValue}) falls outside of the defined bounds: [{numberBoundsMin}, {numberBoundsMax}]"
+                );
+        }
+
+        /// <summary>
+        /// Logs an error caused by a string getting split into an incorrect number of elements with a specified deliminator.
+        /// </summary>
+        /// 
+        /// <param name="errorLocation">
+        /// The location of the error.
+        /// </param>
+        /// <param name="expectedNumberOfElements">
+        /// The expected number of elements the string should get split into.
+        /// </param>
+        /// <param name="stringDeliminator">
+        /// The deliminator used to split the string.
+        /// </param>
+        /// <param name="splitString">
+        /// The string getting split.
+        /// </param>
+        public static void LogStringSplitIntoWrongNumberOfElementsError(string errorLocation, string expectedNumberOfElements, string stringDeliminator, string splitString)
+        {
+            App.Logger?.LogEntry
+                (
+                    $"In {errorLocation}",
+                    $"There were more or less than {expectedNumberOfElements} sections split by {stringDeliminator} in {splitString}"
                 );
         }
     }

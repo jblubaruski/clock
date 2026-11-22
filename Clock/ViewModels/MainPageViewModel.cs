@@ -1,6 +1,7 @@
 ﻿using Clock.Models.ClockModel;
 using Clock.Models.Notifications;
 using Clock.Services.Logging;
+using Clock.Services.Conversions;
 using Clock.ViewModels.Drawables;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -51,6 +52,7 @@ namespace Clock.ViewModels
         /// Event fired when the view model wants a drawing canvas to redraw itself.
         /// </summary>
         internal event Action? InvalidateCanvasRequested;
+        internal event Action<bool>? SetEntryTextStyleRequested;
 
         /// <summary>
         /// Constructs the MainPageViewModel.
@@ -112,7 +114,7 @@ namespace Clock.ViewModels
         {
             if (ClockFace != null)
             {
-                SetClockHands(timeData.Time);
+                SetClockHands(TimeOnly.FromDateTime(timeData.Time));
             }
             else
             {
@@ -133,7 +135,8 @@ namespace Clock.ViewModels
             
         }
 
-        private void SetClockHands(DateTime time)
+        // sets the clock hands to the passed in time
+        private void SetClockHands(TimeOnly time)
         {
             ClockFace?.HourHandRotation = time.Hour * ClockFace.HOUR_TICK_ROTATION;
             ClockFace?.MinuteHandRotation = time.Minute * ClockFace.MINUTE_TICK_ROTATION;
@@ -150,6 +153,7 @@ namespace Clock.ViewModels
         private bool _isEnterCustomTimeEntryEnabled = true;
         private bool _isStartClockButtonEnabled = false;
         private bool _isStopClockButtonEnabled = false;
+        private string _customTimeEntryText = "";
 
         /// <summary>
         /// Determines whether or not the use system time button is enabled.
@@ -183,6 +187,14 @@ namespace Clock.ViewModels
             get => _isStopClockButtonEnabled;
             set => SetProperty(ref _isStopClockButtonEnabled, value);
         }
+        /// <summary>
+        /// The text entered into the enter custom time entry box.
+        /// </summary>
+        public string CustomTimeEntryText
+        {
+            get => _customTimeEntryText;
+            set => SetProperty(ref _customTimeEntryText, value);
+        }
 
         /*
          * COMMANDS
@@ -199,7 +211,7 @@ namespace Clock.ViewModels
                 DateTime currentTime = DateTime.Now;
                 StartTime = TimeOnly.FromDateTime(currentTime);
 
-                SetClockHands(currentTime);
+                SetClockHands(TimeOnly.FromDateTime(currentTime));
             }
             else
             {
@@ -209,6 +221,26 @@ namespace Clock.ViewModels
         bool UseSystemTimeCanExecute()
         {
             return IsUseSystemTimeButtonEnabled;
+        }
+
+        // runs when the user presses enter while entering text in the enter custom time entry box
+        [RelayCommand(CanExecute = nameof(EnterCustomTimeCanExecute))]
+        void EnterCustomTime()
+        {
+            if (TimeConverters.ConvertStringToTimeOnly(CustomTimeEntryText, out StartTime))
+            {
+                ToCustomTimeEnteredState();
+                SetClockHands(StartTime);
+                SetEntryTextStyleRequested?.Invoke(true);
+            }
+            else
+            {
+                SetEntryTextStyleRequested?.Invoke(false);
+            }
+        }
+        bool EnterCustomTimeCanExecute()
+        {
+            return IsEnterCustomTimeEntryEnabled;
         }
 
         // runs when the user clicks the start clock button
@@ -262,6 +294,8 @@ namespace Clock.ViewModels
         private void ToCustomTimeEnteredState()
         {
             IsStartClockButtonEnabled = true;
+
+            ClockUsesSystemTime = false;
         }
 
         // transitions to the start-clock-button-pressed state

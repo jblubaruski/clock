@@ -37,12 +37,12 @@
                 IsEnabled="{Binding IsUseSystemTimeButtonEnabled}"
                 Grid.Column="0"/>
             <Entry
+                x:Name="enterCustomTimeEntryBox"
                 Placeholder="Enter a custom time (hh:mm:ss)"
-                Grid.Column="1">
-                <Entry.Behaviors>
-                    <toolkit:MaskedBehavior Mask="XX:XX:XX"/>
-                </Entry.Behaviors>
-            </Entry>
+                Text="{Binding CustomTimeEntryText}"
+                ReturnCommand="{Binding EnterCustomTimeCommand}"
+                IsEnabled="{Binding IsEnterCustomTimeEntryEnabled}"
+                Grid.Column="1"/>
         </Grid>
         <!-- start and stop clock buttons -->
         <Grid
