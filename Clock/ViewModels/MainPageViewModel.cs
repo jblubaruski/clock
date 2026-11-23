@@ -16,12 +16,15 @@ namespace Clock.ViewModels
     /// </summary>
     public partial class MainPageViewModel : ObservableObject
     {
+        // whether or not the clock drift test logging is active
+        private readonly bool ClockDriftTestLoggingActive = true;
+        // tracks the number of ticks since the clock started ticking
+        private int ClockTicks = 0;
+
         // the span of time between each clock tick
         private readonly TimeSpan TickInterval = new(0, 0, 1);
         // the start time of the clock
         private TimeOnly StartTime = new(0, 0, 0);
-        // whether or not the clock uses the system time
-        private bool ClockUsesSystemTime = false;
 
         // the object that holds and manages the time on the clock
         private ClockData ClockData { get; set; }
@@ -81,13 +84,15 @@ namespace Clock.ViewModels
         /// <summary>
         /// Starts the clock.
         /// </summary>
-        internal async Task StartClock()
+        internal async Task StartClock(bool clockUsesSystemTime)
         {
+            ClockTicks = 0;
+
             if (ClockData != null)
-                if (ClockUsesSystemTime)
-                    await ClockData.StartClock(DateTime.Now);
+                if (clockUsesSystemTime)
+                    await ClockData.StartClock(DateTime.Now, ClockMode.SystemTime);
                 else
-                    await ClockData.StartClock(new(new(2026, 1, 1), StartTime));
+                    await ClockData.StartClock(new(new(2026, 1, 1), StartTime), ClockMode.CustomTime);
             else
                 LoggingUtility.LogNullObjectNotification(nameof(StartClock), nameof(ClockData));
         }
@@ -96,28 +101,37 @@ namespace Clock.ViewModels
         {
             ClockData.StopClock(false);
         }
-        
+
         // called when TickReciever recieves a tick notification
         private void ClockTicked(TimeContainer timeData)
         {
             if (Dispatcher == null)
                 throw new InvalidOperationException("The UI thread's dispatcher cannot be null");
 
-            if (ClockFace != null)
-            {
-                Dispatcher.DispatchAsync(() =>
-                {
-                    if (ClockUsesSystemTime)
-                        SetClockHands(TimeOnly.FromDateTime(DateTime.Now));
-                    else
-                        SetClockHands(TimeOnly.FromDateTime(timeData.Time));
-                });
-            }
-            else
+            if (ClockFace == null)
             {
                 LoggingUtility.LogNullObjectNotification(nameof(ClockTicked), nameof(ClockFace));
                 StopClock();
             }
+
+            bool clockUsesSystemTime = ClockData.CurrentMode == ClockMode.SystemTime;
+            DateTime currentTime = DateTime.Now;
+            TimeOnly displayTime = clockUsesSystemTime ? TimeOnly.FromDateTime(currentTime) : TimeOnly.FromDateTime(timeData.Time);
+            
+            if (ClockDriftTestLoggingActive)
+            {
+                if (clockUsesSystemTime)
+                {
+                    ClockTicks += 1;
+                    TimeSpan timeDiff = currentTime.Subtract(timeData.Time);
+                    LoggingUtility.LogTabSeparatedValueLine(false, ClockTicks.ToString(), timeDiff.TotalSeconds.ToString());
+                }
+            }
+
+            Dispatcher.Dispatch(() =>
+            {
+                SetClockHands(displayTime);
+            });
         }
 
         // called when TickReciever recieves a notice that the clock is done ticking
@@ -142,9 +156,9 @@ namespace Clock.ViewModels
             InvalidateCanvasRequested?.Invoke();
         }
 
-        private static async Task WaitForNextSecond(DateTime currentTime)
+        private static async Task WaitForNextSecond()
         {
-            int tillNextSecond_ms = (int)TimeSpan.MillisecondsPerSecond - currentTime.Millisecond;
+            int tillNextSecond_ms = (int)TimeSpan.MillisecondsPerSecond - DateTime.Now.Millisecond;
             await Task.Delay(tillNextSecond_ms);
         }
 
@@ -207,20 +221,15 @@ namespace Clock.ViewModels
         [RelayCommand(AllowConcurrentExecutions = false, CanExecute = nameof(UseSystemTimeCanExecute))]
         async Task UseSystemTime()
         {
-            if (Dispatcher == null)
-                throw new InvalidOperationException("The UI thread's dispatcher cannot be null");
-
             if (ClockFace != null)
             {
                 ToUseSystemTimeButtonPressedState();
 
-                DateTime currentTime = DateTime.Now;
-                StartTime = TimeOnly.FromDateTime(currentTime);
+                SetClockHands(TimeOnly.FromDateTime(DateTime.Now));
+                await WaitForNextSecond();
 
-                SetClockHands(TimeOnly.FromDateTime(currentTime));
-
-                await WaitForNextSecond(currentTime);
-                await StartClock();
+                StartTime = TimeOnly.FromDateTime(DateTime.Now);
+                await StartClock(true);
             }
             else
             {
@@ -257,7 +266,7 @@ namespace Clock.ViewModels
         async Task StartClockButtonClicked()
         {
             ToStartClockButtonPressedState();
-            await StartClock();
+            await StartClock(false);
         }
         bool StartClockButtonClickedCanExecute()
         {
@@ -287,8 +296,6 @@ namespace Clock.ViewModels
             IsEnterCustomTimeEntryEnabled = true;
             IsStartClockButtonEnabled = false;
             IsStopClockButtonEnabled = false;
-
-            ClockUsesSystemTime = false;
         }
 
         // transitions to the use-system-time-button-pressed state
@@ -298,16 +305,12 @@ namespace Clock.ViewModels
             IsEnterCustomTimeEntryEnabled = false;
             IsStartClockButtonEnabled = false;
             IsStopClockButtonEnabled = true;
-
-            ClockUsesSystemTime = true;
         }
 
         // transitions to the custom-time-entered state
         private void ToCustomTimeEnteredState()
         {
             IsStartClockButtonEnabled = true;
-
-            ClockUsesSystemTime = false;
         }
 
         // transitions to the start-clock-button-pressed state

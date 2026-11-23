@@ -141,5 +141,33 @@ namespace Clock.Services.Logging
                     $"There were more or less than {expectedNumberOfElements} sections split by {stringDeliminator} in {splitString}"
                 );
         }
+
+        /// <summary>
+        /// Logs a single line of tab sepearated values.
+        /// </summary>
+        /// 
+        /// <param name="values">
+        /// The values to log on the line
+        /// </param>
+        /// <param name="entryHeaderPresent">
+        /// whether or not there is an entry header before the line
+        /// </param>
+        public static void LogTabSeparatedValueLine(bool entryHeaderPresent, params string[] values)
+        {
+            if (values.Length != 0)
+            {
+                string line = "";
+                for (int i = 0; i < values.Length - 1; i++)
+                {
+                    line += values[i] + "\t";
+                }
+                line += values[^1];
+
+                if (entryHeaderPresent)
+                    App.Logger?.LogEntry(line);
+                else
+                    App.Logger?.AppendToFile(line);
+            }
+        }
     }
 }

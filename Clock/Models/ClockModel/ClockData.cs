@@ -18,6 +18,10 @@ namespace Clock.Models.ClockModel
         /// The provider that notifies subscribing observers of each tick of the clock.
         /// </summary>
         public NotificationProvider<TimeContainer> TickTransmitter { get; } = new();
+        /// <summary>
+        /// The current mode this clock is set to.
+        /// </summary>
+        public ClockMode CurrentMode { get; private set; } = ClockMode.CustomTime;
 
         // the span of time between ticks
         private readonly TimeSpan TickInterval;
@@ -51,13 +55,17 @@ namespace Clock.Models.ClockModel
         /// <param name="startTime">
         /// The clock's start time.
         /// </param>
-        public Task StartClock(DateTime startTime)
+        /// <param name="currentMode">
+        /// The ClockMode this clock is running in.
+        /// </param>
+        public Task StartClock(DateTime startTime, ClockMode currentMode)
         {
+            StartTime = startTime;
+            CurrentMode = currentMode;
+            TicksSinceStart = 0;
+
             return Task.Run(async () =>
             {
-                StartTime = startTime;
-                TicksSinceStart = 0;
-
                 using PeriodicTimer timer = new(TickInterval);
 
                 try
@@ -67,7 +75,7 @@ namespace Clock.Models.ClockModel
                         TickClock();
                     }
                 }
-                catch (OperationCanceledException) 
+                catch (OperationCanceledException)
                 {
                     CancellationSource = new();
                     CancellationToken = CancellationSource.Token;
@@ -94,18 +102,30 @@ namespace Clock.Models.ClockModel
         // ticks the clock once every TickInterval until the clock is stopped
         private void TickClock()
         {
-            try
+            if (CurrentMode == ClockMode.SystemTime)
             {
-                TicksSinceStart += 1;
-            }
-            catch (OverflowException ex)
-            {
-                TickTransmitter.ErrorAll(ex);
-                StopClock(false);
-            }
+                TimeSpan elapsedTime = DateTime.Now.Subtract(StartTime);
+                long ticksSinceStart = elapsedTime.Ticks / TickInterval.Ticks;
 
-            TimeContainer currentTime = new(StartTime.Add(TickInterval.Multiply(TicksSinceStart)));
-            TickTransmitter.NotifyAll(currentTime);
+                TimeContainer clockTime = new(StartTime.Add(TickInterval.Multiply(ticksSinceStart)));
+                TickTransmitter.NotifyAll(clockTime);
+            }
+            else if (CurrentMode == ClockMode.CustomTime)
+            {
+                try
+                {
+                    TicksSinceStart += 1;
+                }
+                catch (OverflowException ex)
+                {
+                    TickTransmitter.ErrorAll(ex);
+                    StopClock(false);
+                }
+
+                TimeContainer clockTime = new(StartTime.Add(TickInterval.Multiply(TicksSinceStart)));
+                TickTransmitter.NotifyAll(clockTime);
+            }
+            
         }
     }
 }
