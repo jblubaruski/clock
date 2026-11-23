@@ -8,6 +8,10 @@ namespace Clock.Models.ClockModel
     /// <summary>
     /// Contains and manages the time on the clock as well as a provider that notifies subscribers of ticks.
     /// </summary>
+    /// 
+    /// <param name="tickInterval">
+    /// The span of time between ticks
+    /// </param>
     public class ClockData
     {
         /// <summary>
@@ -15,8 +19,6 @@ namespace Clock.Models.ClockModel
         /// </summary>
         public NotificationProvider<TimeContainer> TickTransmitter { get; } = new();
 
-        // the dispatcher that ticks the clock every TickInterval
-        private readonly IDispatcher Dispatcher;
         // the span of time between ticks
         private readonly TimeSpan TickInterval;
 
@@ -24,25 +26,22 @@ namespace Clock.Models.ClockModel
         private DateTime StartTime;
         // the number of ticks since the clock was started
         private long TicksSinceStart = 0;
-        // true if the clock is currently running
-        public bool IsClockRunning { get; private set; } = false;
+        private CancellationTokenSource CancellationSource;
+        private CancellationToken CancellationToken;
 
         /// <summary>
-        /// Constructs a new ClockData.
+        /// Constructs a ClockData instance.
         /// </summary>
         /// 
-        /// <param name="dispatcher">
-        /// The dispatcher that controls the clock's ticking.
-        /// </param>
         /// <param name="tickInterval">
-        /// The span of time between ticks
+        /// The amount of time between ticks.
         /// </param>
-        public ClockData(IDispatcher dispatcher, TimeSpan tickInterval)
+        public ClockData(TimeSpan tickInterval)
         {
-            ArgumentNullException.ThrowIfNull(dispatcher);
-
-            Dispatcher = dispatcher;
             TickInterval = tickInterval;
+
+            CancellationSource = new();
+            CancellationToken = CancellationSource.Token;
         }
 
         /// <summary>
@@ -52,12 +51,28 @@ namespace Clock.Models.ClockModel
         /// <param name="startTime">
         /// The clock's start time.
         /// </param>
-        public void StartClock(DateTime startTime)
+        public Task StartClock(DateTime startTime)
         {
-            StartTime = startTime;
-            TicksSinceStart = 0;
-            IsClockRunning = true;
-            Dispatcher.StartTimer(TickInterval, TickClock);
+            return Task.Run(async () =>
+            {
+                StartTime = startTime;
+                TicksSinceStart = 0;
+
+                using PeriodicTimer timer = new(TickInterval);
+
+                try
+                {
+                    while (await timer.WaitForNextTickAsync(CancellationToken).ConfigureAwait(false))
+                    {
+                        TickClock();
+                    }
+                }
+                catch (OperationCanceledException) 
+                {
+                    CancellationSource = new();
+                    CancellationToken = CancellationSource.Token;
+                }
+            }, CancellationToken);
         }
 
         /// <summary>
@@ -70,38 +85,27 @@ namespace Clock.Models.ClockModel
         /// </param>
         public void StopClock(bool completeClockNotifications)
         {
-            IsClockRunning = false;
+            CancellationSource.Cancel();
 
             if (completeClockNotifications)
                 TickTransmitter.CompleteAll();
         }
 
-        /*
-         * TODO
-         * Edit TickClock() so it runs asynchronously and uses a while loop instead of a dispatcher.
-         */
-
-        // ticks the clock once and returns whether or not the clock is currently running
-        private bool TickClock()
+        // ticks the clock once every TickInterval until the clock is stopped
+        private void TickClock()
         {
-            if (IsClockRunning)
+            try
             {
-                try
-                {
-                    TicksSinceStart += 1;
-                }
-                catch (OverflowException ex)
-                {
-                    TickTransmitter.ErrorAll(ex);
-                    StopClock(false);
-                    return false;
-                }
-
-                TimeContainer currentTime = new(StartTime.Add(TickInterval.Multiply(TicksSinceStart)));
-                TickTransmitter.NotifyAll(currentTime);
+                TicksSinceStart += 1;
+            }
+            catch (OverflowException ex)
+            {
+                TickTransmitter.ErrorAll(ex);
+                StopClock(false);
             }
 
-            return IsClockRunning;
+            TimeContainer currentTime = new(StartTime.Add(TickInterval.Multiply(TicksSinceStart)));
+            TickTransmitter.NotifyAll(currentTime);
         }
     }
 }

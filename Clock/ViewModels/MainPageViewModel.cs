@@ -17,16 +17,16 @@ namespace Clock.ViewModels
     public partial class MainPageViewModel : ObservableObject
     {
         // the span of time between each clock tick
-        private TimeSpan TickInterval = new(0, 0, 1);
+        private readonly TimeSpan TickInterval = new(0, 0, 1);
         // the start time of the clock
         private TimeOnly StartTime = new(0, 0, 0);
         // whether or not the clock uses the system time
         private bool ClockUsesSystemTime = false;
 
         // the object that holds and manages the time on the clock
-        private ClockData? ClockData { get; set; }
+        private ClockData ClockData { get; set; }
         // the observer that recieves tick notifications from the clock
-        private readonly NotificationReciever<TimeContainer>? TickReciever;
+        private readonly NotificationReciever<TimeContainer> TickReciever;
 
         private ClockFace? _clockFace;
         /// <summary>
@@ -44,6 +44,11 @@ namespace Clock.ViewModels
         }
 
         /// <summary>
+        /// The dispatcher of whatever view uses this view model.
+        /// </summary>
+        internal IDispatcher? Dispatcher { private get; set; }
+
+        /// <summary>
         /// Allows ClockFace to be set if true.
         /// </summary>
         internal bool CanClockFaceBeSet { get; private set; } = true;
@@ -59,23 +64,9 @@ namespace Clock.ViewModels
         /// </summary>
         public MainPageViewModel()
         {
-            DispatcherProvider dispatcherProvider = new();
-            IDispatcher? clockDispatcher = dispatcherProvider.GetForCurrentThread();
-
-            if (clockDispatcher != null)
-                ClockData = new(clockDispatcher, TickInterval);
-            else
-                LoggingUtility.LogNullObjectNotification(nameof(MainPageViewModel), nameof(clockDispatcher));
-
-            if (ClockData != null)
-            {
-                TickReciever = new(ClockTicked, TicksCompleted, ClockError);
-                TickReciever.Subscribe(ClockData.TickTransmitter);
-            }
-            else
-            {
-                LoggingUtility.LogNullObjectNotification(nameof(MainPageViewModel), nameof(ClockData));
-            }
+            ClockData = new(TickInterval);
+            TickReciever = new(ClockTicked, TicksCompleted, ClockError);
+            TickReciever.Subscribe(ClockData.TickTransmitter);
         }
 
         /// <summary>
@@ -90,34 +81,37 @@ namespace Clock.ViewModels
         /// <summary>
         /// Starts the clock.
         /// </summary>
-        internal void StartClock()
+        internal async Task StartClock()
         {
             if (ClockData != null)
                 if (ClockUsesSystemTime)
-                    ClockData.StartClock(DateTime.Now);
+                    await ClockData.StartClock(DateTime.Now);
                 else
-                    ClockData.StartClock(new(new(2026, 1, 1), StartTime));
+                    await ClockData.StartClock(new(new(2026, 1, 1), StartTime));
             else
                 LoggingUtility.LogNullObjectNotification(nameof(StartClock), nameof(ClockData));
         }
 
         internal void StopClock()
         {
-            if (ClockData != null)
-                ClockData.StopClock(false);
-            else
-                LoggingUtility.LogNullObjectNotification(nameof(StartClock), nameof(ClockData));
+            ClockData.StopClock(false);
         }
         
         // called when TickReciever recieves a tick notification
         private void ClockTicked(TimeContainer timeData)
         {
+            if (Dispatcher == null)
+                throw new InvalidOperationException("The UI thread's dispatcher cannot be null");
+
             if (ClockFace != null)
             {
-                if (ClockUsesSystemTime)
-                    SetClockHands(TimeOnly.FromDateTime(DateTime.Now));
-                else
-                    SetClockHands(TimeOnly.FromDateTime(timeData.Time));
+                Dispatcher.DispatchAsync(() =>
+                {
+                    if (ClockUsesSystemTime)
+                        SetClockHands(TimeOnly.FromDateTime(DateTime.Now));
+                    else
+                        SetClockHands(TimeOnly.FromDateTime(timeData.Time));
+                });
             }
             else
             {
@@ -150,18 +144,8 @@ namespace Clock.ViewModels
 
         private static async Task WaitForNextSecond(DateTime currentTime)
         {
-            int previousSecond = currentTime.Second;
-
-            bool currentSecondIsDifferentFromPreviousSecond = false;
-
-            do
-            {
-                int currentSecond = DateTime.Now.Second;
-
-                if (currentSecond != previousSecond)
-                    currentSecondIsDifferentFromPreviousSecond = true;
-
-            } while (!currentSecondIsDifferentFromPreviousSecond);
+            int tillNextSecond_ms = (int)TimeSpan.MillisecondsPerSecond - currentTime.Millisecond;
+            await Task.Delay(tillNextSecond_ms);
         }
 
         /*
@@ -223,6 +207,9 @@ namespace Clock.ViewModels
         [RelayCommand(AllowConcurrentExecutions = false, CanExecute = nameof(UseSystemTimeCanExecute))]
         async Task UseSystemTime()
         {
+            if (Dispatcher == null)
+                throw new InvalidOperationException("The UI thread's dispatcher cannot be null");
+
             if (ClockFace != null)
             {
                 ToUseSystemTimeButtonPressedState();
@@ -231,8 +218,9 @@ namespace Clock.ViewModels
                 StartTime = TimeOnly.FromDateTime(currentTime);
 
                 SetClockHands(TimeOnly.FromDateTime(currentTime));
+
                 await WaitForNextSecond(currentTime);
-                StartClock();
+                await StartClock();
             }
             else
             {
@@ -265,11 +253,11 @@ namespace Clock.ViewModels
         }
 
         // runs when the user clicks the start clock button
-        [RelayCommand(CanExecute = nameof(StartClockButtonClickedCanExecute))]
-        void StartClockButtonClicked()
+        [RelayCommand(AllowConcurrentExecutions = false, CanExecute = nameof(StartClockButtonClickedCanExecute))]
+        async Task StartClockButtonClicked()
         {
             ToStartClockButtonPressedState();
-            StartClock();
+            await StartClock();
         }
         bool StartClockButtonClickedCanExecute()
         {

@@ -67,6 +67,7 @@ public partial class MainPage : ContentPage
         ((MainPageViewModel)BindingContext).SetEntryTextStyleRequested += SetEntryTextStyle;
         ((MainPageViewModel)BindingContext).ClockFace = (ClockFace)graphicsView.Drawable;
         ((MainPageViewModel)BindingContext).SetClockFaceLock(true);
+        ((MainPageViewModel)BindingContext).Dispatcher = Dispatcher;
     }
 
     // tells the canvas in graphicsView to redraw itself
