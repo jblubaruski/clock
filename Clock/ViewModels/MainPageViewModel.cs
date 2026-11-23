@@ -31,12 +31,12 @@ namespace Clock.ViewModels
         // the observer that recieves tick notifications from the clock
         private readonly NotificationReciever<TimeContainer> TickReciever;
 
-        private ClockFace? _clockFace;
+        private ClockGraphics? _clockFace;
         /// <summary>
         /// The ClockFace managed by this view model.
         /// Can only be set if CanClockFaceBeSet is true.
         /// </summary>
-        internal ClockFace? ClockFace
+        internal ClockGraphics? ClockFace
         { 
             private get => _clockFace;
             set
@@ -149,9 +149,9 @@ namespace Clock.ViewModels
         // sets the clock hands to the passed in time
         private void SetClockHands(TimeOnly time)
         {
-            ClockFace?.HourHandRotation = time.Hour * ClockFace.HOUR_TICK_ROTATION;
-            ClockFace?.MinuteHandRotation = time.Minute * ClockFace.MINUTE_TICK_ROTATION;
-            ClockFace?.SecondHandRotation = time.Second * ClockFace.MINUTE_TICK_ROTATION;
+            ClockFace?.HourHandRotation = time.Hour * ClockGraphics.HOUR_TICK_ROTATION;
+            ClockFace?.MinuteHandRotation = time.Minute * ClockGraphics.MINUTE_TICK_ROTATION;
+            ClockFace?.SecondHandRotation = time.Second * ClockGraphics.MINUTE_TICK_ROTATION;
 
             InvalidateCanvasRequested?.Invoke();
         }

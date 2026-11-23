@@ -8,7 +8,7 @@ namespace Clock.ViewModels.Drawables
     /// <summary>
     /// Contains data used by ClockFace to draw the clock
     /// </summary>
-    public class ClockFaceDrawData
+    public class ClockGraphicsData
     {
         public readonly float RimOuterRadius = 160.0f;
         public readonly float RimInnerRadius = 140.0f;

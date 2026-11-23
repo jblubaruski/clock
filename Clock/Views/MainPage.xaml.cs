@@ -37,7 +37,7 @@ public partial class MainPage : ContentPage
 
     private void SetupClockFace()
     {
-        ClockFace clockFace = (ClockFace)graphicsView.Drawable;
+        ClockGraphics clockFace = (ClockGraphics)graphicsView.Drawable;
 
         string key = "DefaultSecondHandRotation";
         if (Resources.TryGetValue(key, out var value) == true && value is double shr)
@@ -65,7 +65,7 @@ public partial class MainPage : ContentPage
         BindingContext = viewModel;
         ((MainPageViewModel)BindingContext).InvalidateCanvasRequested += InvalidateCanvas;
         ((MainPageViewModel)BindingContext).SetEntryTextStyleRequested += SetEntryTextStyle;
-        ((MainPageViewModel)BindingContext).ClockFace = (ClockFace)graphicsView.Drawable;
+        ((MainPageViewModel)BindingContext).ClockFace = (ClockGraphics)graphicsView.Drawable;
         ((MainPageViewModel)BindingContext).SetClockFaceLock(true);
         ((MainPageViewModel)BindingContext).Dispatcher = Dispatcher;
     }

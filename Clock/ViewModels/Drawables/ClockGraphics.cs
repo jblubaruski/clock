@@ -9,9 +9,9 @@ namespace Clock.ViewModels.Drawables
     /// <summary>
     /// Draws the clock face to a graphics canvas.
     /// </summary>
-    public class ClockFace : IDrawable
+    public class ClockGraphics : IDrawable
     {
-        public ClockFaceDrawData drawData = new();
+        public ClockGraphicsData drawData = new();
 
         // the rotations of the second, minute and hour hands
         // rotations are in radians with 0 radians at the top of the clock with numbers increasing in the clockwise direction

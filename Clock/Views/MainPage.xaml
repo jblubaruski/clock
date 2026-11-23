@@ -11,8 +11,8 @@
 
     <ContentPage.Resources>
         <toolkit:MathExpressionConverter x:Key="MathExpressionConverter"/>
-        
-        <drawable:ClockFace x:Key="drawable"/>
+
+        <drawable:ClockGraphics x:Key="drawable"/>
         
         <x:Double x:Key="DefaultSecondHandRotation">0.0</x:Double>
         <x:Double x:Key="DefaultMinuteHandRotation">0.0</x:Double>
