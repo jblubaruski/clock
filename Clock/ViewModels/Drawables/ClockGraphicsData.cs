@@ -6,10 +6,23 @@ using System.Text;
 namespace Clock.ViewModels.Drawables
 {
     /// <summary>
-    /// Contains data used by ClockFace to draw the clock
+    /// Contains data used by ClockFace to draw the clock.
     /// </summary>
     public class ClockGraphicsData
     {
+        /// <summary>
+        /// Radians in a full rotation.
+        /// </summary>
+        public static readonly double FullRotation = 2 * Math.PI;
+        /// <summary>
+        /// Radians in one rotation of the hour hand.
+        /// </summary>
+        public static readonly double HourTickRotation = Math.PI / 6.0;
+        /// <summary>
+        /// Radians in one rotation of the minute hand.
+        /// </summary>
+        public static readonly double MinuteTickRotation = Math.PI / 30.0;
+
         public readonly float RimOuterRadius = 160.0f;
         public readonly float RimInnerRadius = 140.0f;
         public readonly float TickMarkStartScale = 1.0f;

@@ -31,18 +31,18 @@ namespace Clock.ViewModels
         // the observer that recieves tick notifications from the clock
         private readonly NotificationReciever<TimeContainer> TickReciever;
 
-        private ClockGraphics? _clockFace;
+        private ClockGraphics? _clockGraphics;
         /// <summary>
         /// The ClockFace managed by this view model.
         /// Can only be set if CanClockFaceBeSet is true.
         /// </summary>
-        internal ClockGraphics? ClockFace
+        internal ClockGraphics? ClockGraphics
         { 
-            private get => _clockFace;
+            private get => _clockGraphics;
             set
             {
                 if (CanClockFaceBeSet)
-                    _clockFace = value;
+                    _clockGraphics = value;
             }
         }
 
@@ -108,9 +108,9 @@ namespace Clock.ViewModels
             if (Dispatcher == null)
                 throw new InvalidOperationException("The UI thread's dispatcher cannot be null");
 
-            if (ClockFace == null)
+            if (ClockGraphics == null)
             {
-                LoggingUtility.LogNullObjectNotification(nameof(ClockTicked), nameof(ClockFace));
+                LoggingUtility.LogNullObjectNotification(nameof(ClockTicked), nameof(ClockGraphics));
                 StopClock();
             }
 
@@ -149,9 +149,9 @@ namespace Clock.ViewModels
         // sets the clock hands to the passed in time
         private void SetClockHands(TimeOnly time)
         {
-            ClockFace?.HourHandRotation = time.Hour * ClockGraphics.HOUR_TICK_ROTATION;
-            ClockFace?.MinuteHandRotation = time.Minute * ClockGraphics.MINUTE_TICK_ROTATION;
-            ClockFace?.SecondHandRotation = time.Second * ClockGraphics.MINUTE_TICK_ROTATION;
+            ClockGraphics?.HourHandRotation = time.Hour * ClockGraphicsData.HourTickRotation;
+            ClockGraphics?.MinuteHandRotation = time.Minute * ClockGraphicsData.MinuteTickRotation;
+            ClockGraphics?.SecondHandRotation = time.Second * ClockGraphicsData.MinuteTickRotation;
 
             InvalidateCanvasRequested?.Invoke();
         }
@@ -221,7 +221,7 @@ namespace Clock.ViewModels
         [RelayCommand(AllowConcurrentExecutions = false, CanExecute = nameof(UseSystemTimeCanExecute))]
         async Task UseSystemTime()
         {
-            if (ClockFace != null)
+            if (ClockGraphics != null)
             {
                 ToUseSystemTimeButtonPressedState();
 
@@ -233,7 +233,7 @@ namespace Clock.ViewModels
             }
             else
             {
-                LoggingUtility.LogNullObjectNotification(nameof(UseSystemTime), nameof(ClockFace));
+                LoggingUtility.LogNullObjectNotification(nameof(UseSystemTime), nameof(ClockGraphics));
             }
         }
         bool UseSystemTimeCanExecute()
@@ -301,10 +301,7 @@ namespace Clock.ViewModels
         // transitions to the use-system-time-button-pressed state
         private void ToUseSystemTimeButtonPressedState()
         {
-            IsUseSystemTimeButtonEnabled = false;
-            IsEnterCustomTimeEntryEnabled = false;
-            IsStartClockButtonEnabled = false;
-            IsStopClockButtonEnabled = true;
+            ToStartClockButtonPressedState();
         }
 
         // transitions to the custom-time-entered state

@@ -12,8 +12,9 @@
     <ContentPage.Resources>
         <toolkit:MathExpressionConverter x:Key="MathExpressionConverter"/>
 
-        <drawable:ClockGraphics x:Key="drawable"/>
-        
+        <drawable:ClockGraphics x:Key="dynamicDrawable"/>
+        <drawable:ClockStaticGraphics x:Key="staticDrawable"/>
+
         <x:Double x:Key="DefaultSecondHandRotation">0.0</x:Double>
         <x:Double x:Key="DefaultMinuteHandRotation">0.0</x:Double>
         <x:Double x:Key="DefaultHourHandRotation">0.0</x:Double>
@@ -137,8 +138,12 @@
         </Grid>
         <!-- clock display -->
         <GraphicsView
-            x:Name="graphicsView"
-            Drawable="{StaticResource drawable}"
+            x:Name="staticGraphicsView"
+            Drawable="{StaticResource staticDrawable}"
+            Grid.Row="2"/>
+        <GraphicsView
+            x:Name="dynamicGraphicsView"
+            Drawable="{StaticResource dynamicDrawable}"
             Grid.Row="2"/>
     </Grid>
 

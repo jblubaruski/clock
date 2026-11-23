@@ -37,23 +37,23 @@ public partial class MainPage : ContentPage
 
     private void SetupClockFace()
     {
-        ClockGraphics clockFace = (ClockGraphics)graphicsView.Drawable;
+        ClockGraphics dynamicClockGraphics = (ClockGraphics)dynamicGraphicsView.Drawable;
 
         string key = "DefaultSecondHandRotation";
         if (Resources.TryGetValue(key, out var value) == true && value is double shr)
-            clockFace.SecondHandRotation = shr;
+            dynamicClockGraphics.SecondHandRotation = shr;
         else
             LoggingUtility.LogResourceError(nameof(SetupClockFace), key, nameof(MainPage), "Double");
 
         key = "DefaultMinuteHandRotation";
         if (Resources.TryGetValue(key, out value) == true && value is double mhr)
-            clockFace.MinuteHandRotation = mhr;
+            dynamicClockGraphics.MinuteHandRotation = mhr;
         else
             LoggingUtility.LogResourceError(nameof(SetupClockFace), key, nameof(MainPage), "Double");
 
         key = "DefaultHourHandRotation";
         if (Resources.TryGetValue(key, out value) == true && value is double hhr)
-            clockFace.HourHandRotation = hhr;
+            dynamicClockGraphics.HourHandRotation = hhr;
         else
             LoggingUtility.LogResourceError(nameof(SetupClockFace), key, nameof(MainPage), "Double");
 
@@ -65,7 +65,7 @@ public partial class MainPage : ContentPage
         BindingContext = viewModel;
         ((MainPageViewModel)BindingContext).InvalidateCanvasRequested += InvalidateCanvas;
         ((MainPageViewModel)BindingContext).SetEntryTextStyleRequested += SetEntryTextStyle;
-        ((MainPageViewModel)BindingContext).ClockFace = (ClockGraphics)graphicsView.Drawable;
+        ((MainPageViewModel)BindingContext).ClockGraphics = (ClockGraphics)dynamicGraphicsView.Drawable;
         ((MainPageViewModel)BindingContext).SetClockFaceLock(true);
         ((MainPageViewModel)BindingContext).Dispatcher = Dispatcher;
     }
@@ -73,7 +73,7 @@ public partial class MainPage : ContentPage
     // tells the canvas in graphicsView to redraw itself
     private void InvalidateCanvas()
     {
-        graphicsView.Invalidate();
+        dynamicGraphicsView.Invalidate();
     }
 
     // sets the entry text style to either the valid style if valid is true or the invalid style if valid is false
