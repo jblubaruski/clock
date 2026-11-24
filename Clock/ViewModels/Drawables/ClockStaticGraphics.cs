@@ -7,7 +7,8 @@ namespace Clock.ViewModels.Drawables
 {
     internal class ClockStaticGraphics : IDrawable
     {
-        private readonly ClockGraphicsData DrawData = new();
+        private readonly ClockStaticGraphicsData DrawData = new();
+        private readonly ClockGraphicsSharedData SharedDrawData = new();
 
         public void Draw(ICanvas canvas, RectF canvasData)
         {
@@ -45,12 +46,12 @@ namespace Clock.ViewModels.Drawables
             canvas.FillCircle(canvasData.Center, DrawData.RimOuterRadius);
 
             canvas.FillColor = DrawData.FaceFillColor;
-            canvas.FillCircle(canvasData.Center, DrawData.RimInnerRadius);
+            canvas.FillCircle(canvasData.Center, SharedDrawData.RimInnerRadius);
 
             canvas.StrokeColor = DrawData.RimStrokeColor;
-            canvas.StrokeSize = DrawData.RimStrokeSize;
+            canvas.StrokeSize = SharedDrawData.RimStrokeSize;
             canvas.DrawCircle(canvasData.Center, DrawData.RimOuterRadius);
-            canvas.DrawCircle(canvasData.Center, DrawData.RimInnerRadius);
+            canvas.DrawCircle(canvasData.Center, SharedDrawData.RimInnerRadius);
         }
 
         // draws the hour tick marks
@@ -61,8 +62,8 @@ namespace Clock.ViewModels.Drawables
 
             for (int hour = 0; hour < 12; hour++)
             {
-                double theta = hour * ClockGraphicsData.HourTickRotation;
-                float distance = DrawData.RimInnerRadius - DrawData.RimStrokeSize / 2;
+                double theta = hour * DrawMath.HourTickRotation;
+                float distance = SharedDrawData.RimInnerRadius - SharedDrawData.RimStrokeSize / 2;
 
                 PointF lineStart = DrawMath.GetScaledRadialLineEndPoint(canvasData.Center, distance, DrawData.TickMarkStartScale, (float)theta, false);
                 PointF lineEnd = DrawMath.GetScaledRadialLineEndPoint(canvasData.Center, distance, DrawData.HourTickMarkEndScale, (float)theta, false);
@@ -81,8 +82,8 @@ namespace Clock.ViewModels.Drawables
             {
                 if (minute % 5 != 0)
                 {
-                    double theta = minute * ClockGraphicsData.MinuteTickRotation;
-                    float distance = DrawData.RimInnerRadius - DrawData.RimStrokeSize / 2;
+                    double theta = minute * DrawMath.MinuteTickRotation;
+                    float distance = SharedDrawData.RimInnerRadius - SharedDrawData.RimStrokeSize / 2;
 
                     PointF lineStart = DrawMath.GetScaledRadialLineEndPoint(canvasData.Center, distance, DrawData.TickMarkStartScale, (float)theta, false);
                     PointF lineEnd = DrawMath.GetScaledRadialLineEndPoint(canvasData.Center, distance, DrawData.MinuteTickMarkEndScale, (float)theta, false);

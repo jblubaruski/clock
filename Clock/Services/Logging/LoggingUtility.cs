@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FileUtility.Logging;
+using System;
 using System.Collections.Generic;
 using System.Security.AccessControl;
 using System.Text;
@@ -7,6 +8,11 @@ namespace Clock.Services.Logging
 {
     public static class LoggingUtility
     {
+        public const string COMPANY_LOGS_FOLDER = "PlaypenSoftware";
+        public const string APPLICATION_NAME = "Clock";
+
+        public static Logger Logger { get; private set; } = new("log", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), COMPANY_LOGS_FOLDER, APPLICATION_NAME));
+
         /// <summary>
         /// Logs an error caused by a resource retrieval failure in the application's log file.
         /// </summary>
@@ -25,7 +31,7 @@ namespace Clock.Services.Logging
         /// </param>
         public static void LogResourceError(string callLocation, string key, string resourceLocation, string type)
         {
-            App.Logger?.LogEntry
+            Logger.LogEntry
                 (
                     $"In {callLocation}:",
                     $"The resource {key} does not exist in the {resourceLocation} resource dictionary as {type}"
@@ -41,7 +47,7 @@ namespace Clock.Services.Logging
         /// <param name="propertyName"></param>
         public static void LogPropertyCantBeSetTwiceNotice(string propertyClass, string propertyName)
         {
-            App.Logger?.LogEntry
+            Logger.LogEntry
                 (
                     $"In {propertyClass}:",
                     $"{propertyName} cannot be set more than once and the last set call has been ignored"
@@ -60,7 +66,7 @@ namespace Clock.Services.Logging
         /// </param>
         public static void LogNullObjectNotification(string callLocation, string objectName)
         {
-            App.Logger?.LogEntry
+            Logger.LogEntry
                 (
                     $"In {callLocation}:",
                     $"{objectName} is null"
@@ -82,7 +88,7 @@ namespace Clock.Services.Logging
         /// </param>
         public static void LogStringNotValidNumberError(string errorLocation, string invalidString, string numberType)
         {
-            App.Logger?.LogEntry
+            Logger.LogEntry
                 (
                     $"In {errorLocation}:",
                     $"{invalidString} cannot be parsed into {numberType}"
@@ -110,7 +116,7 @@ namespace Clock.Services.Logging
         /// </param>
         public static void LogNumberOutsideOfBoundsError(string errorLocation, string numberVaraiableName, string numberVariableValue, string numberBoundsMin, string numberBoundsMax)
         {
-            App.Logger?.LogEntry
+            Logger.LogEntry
                 (
                     $"In {errorLocation}",
                     $"the number in {numberVaraiableName} ({numberVariableValue}) falls outside of the defined bounds: [{numberBoundsMin}, {numberBoundsMax}]"
@@ -135,7 +141,7 @@ namespace Clock.Services.Logging
         /// </param>
         public static void LogStringSplitIntoWrongNumberOfElementsError(string errorLocation, string expectedNumberOfElements, string stringDeliminator, string splitString)
         {
-            App.Logger?.LogEntry
+            Logger.LogEntry
                 (
                     $"In {errorLocation}",
                     $"There were more or less than {expectedNumberOfElements} sections split by {stringDeliminator} in {splitString}"
@@ -164,9 +170,9 @@ namespace Clock.Services.Logging
                 line += values[^1];
 
                 if (entryHeaderPresent)
-                    App.Logger?.LogEntry(line);
+                    Logger.LogEntry(line);
                 else
-                    App.Logger?.AppendToFile(line);
+                    Logger.AppendToFile(line);
             }
         }
     }

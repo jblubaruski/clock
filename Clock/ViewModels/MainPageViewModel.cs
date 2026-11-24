@@ -2,6 +2,7 @@
 using Clock.Models.Notifications;
 using Clock.Services.Logging;
 using Clock.Services.Conversions;
+using Clock.Services.Drawing;
 using Clock.ViewModels.Drawables;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -19,19 +20,27 @@ namespace Clock.ViewModels
         // string format for a double that converts it to a decimal number string with max precision
         private readonly string DoubleMaxPrecisionStringFormat = "0." + new string('#', 339);
         // whether or not the clock drift test logging is active
-        private readonly bool ClockDriftTestLoggingActive = true;
+        private readonly bool ClockDriftTestLoggingActive = false;
         // tracks the number of ticks since the clock started ticking
         private int ClockTicks = 0;
 
-        // the span of time between each clock tick
-        private readonly TimeSpan TickInterval = new(0, 0, 1);
         // the start time of the clock
         private TimeOnly StartTime = new(0, 0, 0);
 
         // the object that holds and manages the time on the clock
-        private ClockData ClockData { get; set; }
+        private readonly ClockData ClockData;
         // the observer that recieves tick notifications from the clock
         private readonly NotificationReciever<TimeContainer> TickReciever;
+
+        /// <summary>
+        /// The dispatcher of whatever view uses this view model.
+        /// </summary>
+        internal IDispatcher? Dispatcher { private get; set; }
+
+        /// <summary>
+        /// Allows ClockFace to be set if true.
+        /// </summary>
+        internal bool CanClockFaceBeSet { get; private set; } = true;
 
         private ClockGraphics? _clockGraphics;
         /// <summary>
@@ -49,19 +58,12 @@ namespace Clock.ViewModels
         }
 
         /// <summary>
-        /// The dispatcher of whatever view uses this view model.
-        /// </summary>
-        internal IDispatcher? Dispatcher { private get; set; }
-
-        /// <summary>
-        /// Allows ClockFace to be set if true.
-        /// </summary>
-        internal bool CanClockFaceBeSet { get; private set; } = true;
-
-        /// <summary>
         /// Event fired when the view model wants a drawing canvas to redraw itself.
         /// </summary>
         internal event Action? InvalidateCanvasRequested;
+        /// <summary>
+        /// Event fired when the view model wants an entry box's text style to be set.
+        /// </summary>
         internal event Action<bool>? SetEntryTextStyleRequested;
 
         /// <summary>
@@ -69,7 +71,8 @@ namespace Clock.ViewModels
         /// </summary>
         public MainPageViewModel()
         {
-            ClockData = new(TickInterval);
+            TimeSpan tickInterval = new(0, 0, 1);
+            ClockData = new(tickInterval);
             TickReciever = new(ClockTicked, TicksCompleted, ClockError);
             TickReciever.Subscribe(ClockData.TickTransmitter);
         }
@@ -90,18 +93,25 @@ namespace Clock.ViewModels
         {
             ClockTicks = 0;
 
-            if (ClockData != null)
-                if (clockUsesSystemTime)
-                    await ClockData.StartClock(DateTime.Now, ClockMode.SystemTime);
-                else
-                    await ClockData.StartClock(new(new(2026, 1, 1), StartTime), ClockMode.CustomTime);
+            if (clockUsesSystemTime)
+                await ClockData.StartClock(DateTime.Now, ClockMode.SystemTime);
             else
-                LoggingUtility.LogNullObjectNotification(nameof(StartClock), nameof(ClockData));
+                await ClockData.StartClock(new(new(2026, 1, 1), StartTime), ClockMode.CustomTime);
         }
 
         internal void StopClock()
         {
             ClockData.StopClock(false);
+        }
+
+        // sets the clock hands to the passed in time
+        private void SetClockHands(TimeOnly time)
+        {
+            ClockGraphics?.HourHandRotation = time.Hour * DrawMath.HourTickRotation;
+            ClockGraphics?.MinuteHandRotation = time.Minute * DrawMath.MinuteTickRotation;
+            ClockGraphics?.SecondHandRotation = time.Second * DrawMath.MinuteTickRotation;
+
+            InvalidateCanvasRequested?.Invoke();
         }
 
         // called when TickReciever recieves a tick notification
@@ -147,16 +157,6 @@ namespace Clock.ViewModels
             
         }
 
-        // sets the clock hands to the passed in time
-        private void SetClockHands(TimeOnly time)
-        {
-            ClockGraphics?.HourHandRotation = time.Hour * ClockGraphicsData.HourTickRotation;
-            ClockGraphics?.MinuteHandRotation = time.Minute * ClockGraphicsData.MinuteTickRotation;
-            ClockGraphics?.SecondHandRotation = time.Second * ClockGraphicsData.MinuteTickRotation;
-
-            InvalidateCanvasRequested?.Invoke();
-        }
-
         /*
          * BINDABLE PROPERTIES
          */
@@ -170,7 +170,7 @@ namespace Clock.ViewModels
         /// <summary>
         /// Determines whether or not the use system time button is enabled.
         /// </summary>
-        public bool IsUseSystemTimeButtonEnabled
+        internal bool IsUseSystemTimeButtonEnabled
         {
             get => _isUseSystemTimeButtonEnabled;
             set => SetProperty(ref _isUseSystemTimeButtonEnabled, value);
@@ -178,7 +178,7 @@ namespace Clock.ViewModels
         /// <summary>
         /// Determines whether or not the enter custom time entry is enabled.
         /// </summary>
-        public bool IsEnterCustomTimeEntryEnabled
+        internal bool IsEnterCustomTimeEntryEnabled
         {
             get => _isEnterCustomTimeEntryEnabled;
             set => SetProperty(ref _isEnterCustomTimeEntryEnabled, value);
@@ -186,7 +186,7 @@ namespace Clock.ViewModels
         /// <summary>
         /// Determines whether or not the start clock button is enabled.
         /// </summary>
-        public bool IsStartClockButtonEnabled
+        internal bool IsStartClockButtonEnabled
         {
             get => _isStartClockButtonEnabled;
             set => SetProperty(ref _isStartClockButtonEnabled, value);
@@ -194,7 +194,7 @@ namespace Clock.ViewModels
         /// <summary>
         /// Determines whether or not the stop clock button is enabled.
         /// </summary>
-        public bool IsStopClockButtonEnabled
+        internal bool IsStopClockButtonEnabled
         {
             get => _isStopClockButtonEnabled;
             set => SetProperty(ref _isStopClockButtonEnabled, value);
@@ -202,7 +202,7 @@ namespace Clock.ViewModels
         /// <summary>
         /// The text entered into the enter custom time entry box.
         /// </summary>
-        public string CustomTimeEntryText
+        internal string CustomTimeEntryText
         {
             get => _customTimeEntryText;
             set => SetProperty(ref _customTimeEntryText, value);

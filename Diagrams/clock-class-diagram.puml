@@ -1,0 +1,328 @@
+@startuml
+
+package FileUtility.Logging
+{
+    class Logger
+}
+
+package Clock
+{
+    + class MauiProgram <<static>>
+    {
+        + {static} CreateMauiApp() : MauiApp
+    }
+
+    + class AppShell <<extends Maui Shell class>>
+    {
+        + AppShell()
+    }
+
+    + class App <<extends Maui Application class>>
+    {
+        + WindowWidth {get private set} : int
+        + WindowHeight {get private set} : int
+
+        + App()
+        - LoadApplicationResources() : void
+        # CreateWindow(IActivationState?) <<override>> : Window
+    }
+}
+
+package Clock.Views
+{
+    + class MainPage <<extends Maui ContentPage class>>
+    {
+        - ValidEntryTextStyle : Style?
+        - InvalidEntryTextStyle : Style?
+
+        + MainPage(MainPageViewModel)
+        - LoadResources() : void
+        - SetupClockFace() : void
+        - SetupBindingContext(MainPageViewModel) : void
+        - InvalidateCanvas() : void
+        - SetEntryTextStyle(bool) : void
+    }
+}
+
+package Clock.ViewModels
+{
+    class MainPageViewModel <<extends MVVM Toolkit ObservableObject class>>
+    {
+        - ClockTicks : int
+        - StartTime : TimeOnly
+        - ClockData <<readonly>> : ClockData
+        - TickReciever <<readonly>> : NotificationReciever<TimeContainer>
+        
+        ~ Dispatcher {private get set} : IDispatcher?
+        ~ CanClockFaceBeSet {get private set} : bool
+        - _clockGraphics : ClockGraphics?
+        ~ ClockGraphics {private get set} : ClockGraphics?
+        ..
+        <<events>>
+
+        ~ InvalidateCanvasRequested <<event>> : Action?
+        ~ SetEntryTextStyleRequested <<event>> : Action<bool>?
+        ..
+        <<bindable properties>>
+
+        - _isUseSystemTimeButtonEnabled : bool
+        ~ IsUseSystemTimeButtonEnabled {get set} : bool
+        - _isEnterCustomTimeEntryEnabled : bool
+        ~ IsEnterCustomTimeEntryEnabled {get set} : bool
+        - _isStartClockButtonEnabled : bool
+        ~ IsStartClockButtonEnabled {get set} : bool
+        - _isStopClockButtonEnabled : bool
+        ~ IsStopClockButtonEnabled {get set} : bool
+        - _customTimeEntryText : string
+        ~ CustomTimeEntryText {get set} : string
+        --
+        + MainPageViewModel()
+        ~ SetClockFace(bool) : void
+        ~ StartClock() <<async>> : Task
+        ~ StopClock() : void
+        - SetClockHands(TimeOnly) : void
+        ..
+        <<observer methods>>
+
+        - ClockTicked(TimeContainer) : void
+        - TicksCompleted() : void
+        - ClockError(Exception) : void
+        ..
+        <<commands>>
+
+        UseSystemTime() <<async>> : Task
+        UseSystemTimeCanExecute() : bool
+        EnterCustomTime() : void
+        EnterCustomTimeCanExecute() : bool
+        StartClockButtonClicked() <<async>> : Task
+        StartClockButtonClickedCanExecute() : bool
+        StopClockButtonClicked() : void
+        StopClockButtonClickedCanExecute() : bool
+        ..
+        <<state transitions>>
+
+        - ToBaseState() : void
+        - ToUseSystemTimeButtonPressedState() : void
+        - ToCustomTimeEnteredState() : void
+        - ToStartClockButtonPressedState() : void
+        - ToStopClockButtonPressedState() : void
+    }
+}
+
+package Clock.ViewModels.Drawables
+{
+    ~ class ClockGraphics <<implements Maui IDrawable interface>>
+    {
+        - DrawData <<readonly>> : ClockGraphicsData
+        - SharedDrawData <<readonly>> : ClockGraphicsSharedData
+
+        + SecondHandRotation {get set} : double
+        + MinuteHandRotation {get set} : double
+        + HourHandRotation {get set} : double
+
+        + Draw(ICanvas, RectF) : void
+        - DrawHand(ICanvas, RectF, Color, float, float, float, float) : void
+    }
+
+    ~ class ClockStaticGraphics <<implements Maui IDrawable interface>>
+    {
+        - DrawData <<readonly>> : ClockStaticGraphicsData
+        - SharedDrawData <<readonly>> : ClockGraphicsSharedData
+
+        + Draw(ICanvas, RectF) : void
+        - DrawWall(ICanvas, RectF) : void
+        - DrawFace(ICanvas, RectF) : void
+        - DrawHourTickMarks(ICanvas, RectF) : void
+        - DrawMinuteTickMarks(ICanvas, RectF) : void
+    }
+
+    ~ class ClockGraphicsData
+    {
+        + SecondHandStartScale {get set} : float
+        + SecondHandEndScale {get set} : float
+        + MinuteHandStartScale {get set} : float
+        + MinuteHandEndScale {get set} : float
+        + HourHandStartScale {get set} : float
+        + HourHandEndScale {get set} : float
+
+        + SecondHandStrokeSize {get set} : float
+        + MinuteHandStrokeSize {get set} : float
+        + HourHandStrokeSize {get set} : float
+
+        + SecondHandStrokeColor {get set} : Color
+        + MinuteHandStrokeColor {get set} : Color
+        + HourHandStrokeColor {get set} : Color
+    }
+
+    ~ class ClockStaticGraphicsData
+    {
+        + RimOuterRadius {get set} : float
+        + TickMarkStartScale {get set} : float
+        + HourTickMarkEndScale {get set} : float
+        + MinuteTickMarkEndScale {get set} : float
+
+        + HourTickMarkStrokeSize {get set} : float
+        + MinuteTickMarkStrokeSize {get set} : float
+
+        + RimStrokeColor {get set} : Color
+        + RimFillColor {get set} : Color
+        + FaceFillColor {get set} : Color
+        + HourTickMarkStrokeColor {get set} : Color
+        + MinuteTickMarkStrokeColor {get set} : Color
+        + WallStripeColor1 {get set} : Color
+        + WallStripeColor2 {get set} : Color
+
+        + NumberOfStripesOnWall {get set} : int
+    }
+
+    ~ class ClockGraphicsSharedData
+    {
+        + RimInnerRadius {get set} : float
+        + RimStrokeSize {get set} : float
+    }
+}
+
+package Clock.Services.Logging
+{
+    + class LoggingUtility <<static>>
+    {
+        + {static} Logger : Logger
+
+        + {static} LogResourceError(string, string, string, string) : void
+        + {static} LogPropertyCantBeSetTwiceNotice(string, string) : void
+        + {static} LogNullObjectNotification(string, string) : void
+        + {static} LogStringNotValidNumberError(string, string, string) : void
+        + {static} LogNumberOutsideOfBoundsError(string, string, string, string, string) : void
+        + {static} LogStringSplitIntoWrongNumberOfElementsError(string, string, string, string) : void
+        + {static} LogTabSeparatedValueLine(bool, params string[]) : void
+    }
+}
+
+package Clock.Services.Conversions
+{
+    + class TimeConverters <<static>>
+    {
+        + {static} ConvertStringToTimeOnly(string, string, out TimeOnly) : bool
+    }
+}
+
+package Clock.Services.Drawing
+{
+    + class DrawMath <<static>>
+    {
+        + {static} FullRotation <<readonly>> : double
+        + {static} HourTickRotation <<readonly>> : double
+        + {static} MinuteTickRotation <<readonly>> : double
+
+        + {static} GetScaledRadialLineEndPoint(PointF, float, float, float, bool) : PointF
+    }
+}
+
+package Clock.Models.ClockModel
+{
+    + class ClockData
+    {
+        + TickTransmitter {get} : NotificationProvider<TimeContainer>
+        + CurrentMode {get private set} : ClockMode
+        - TickInterval <<readonly>> : TimeSpan
+        - StartTime : DateTime
+        - TicksSinceStart : long
+        - CancellationSource : CancellationTokenSource
+        - CancellationToken : CancellationToken
+
+        + ClockData(TimeSpan)
+        + StartClock(DateTime, ClockMode) : Task
+        + StopClock(bool) : void
+        - StartSystemTimeClock() : Task
+        - StartCustomTimeClock(DateTime) : Task
+        - TickClock() : void
+    }
+
+    + class TimeContainer
+    {
+        + Time {get} : DateTime
+
+        + TimeContainer(DateTime) <<primary constructor>>
+    }
+
+    + enum ClockMode
+    {
+        SystemTime
+        CustomTime
+    }
+}
+
+package Clock.Models.Notifications
+{
+    + class NotificationProvider<T> <<implements System IObservable interface>>
+    {
+        - _observers <<readonly>> : List<IObserver<T>>
+        - _sync <<readonly>> : Lock
+
+        + Subscribe(IObserver<T>) : IDisposable
+        + NotifyAll(T) : void
+        + CompleteAll() : void
+        + ErrorAll(Exception) : void
+    }
+
+    - class Unsubscriber << implements System IDisposable interface>>
+    {
+        + Unsubscriber(List<IObserver<T>>, IObserver<T>, Lock) <<primary constructor>>
+
+        + Dispose() : void
+    }
+
+    + class NotificationReciever<T> <<implements System IObserver interface>>
+    {
+        - Next <<readonly>> : Action<T>
+        - Completed <<readonly>> : Action
+        - Error <<readonly>> : Action<Exception>
+        - _unsubscriber : IDisposable?
+
+        + NotificationReciever(Action<T>, Action, Action<Exception>)
+        + Subscribe(IObservable<T>) : bool
+        + Unsubscribe() : void
+        + OnNext(T) : void
+        + OnCompleted() : void
+        + OnError(Exception) : void
+    }
+}
+
+MauiProgram --> App
+MauiProgram ..> MainPage
+MauiProgram ..> MainPageViewModel
+
+App --> AppShell
+App --> LoggingUtility
+
+MainPage --> MainPageViewModel
+MainPage --> LoggingUtility
+MainPage --> ClockGraphics
+MainPage ..> ClockStaticGraphics
+
+MainPageViewModel --> ClockData
+MainPageViewModel --> NotificationReciever
+MainPageViewModel --> TimeContainer
+MainPageViewModel --> ClockGraphics
+MainPageViewModel --> ClockMode
+MainPageViewModel --> DrawMath
+MainPageViewModel --> LoggingUtility
+
+LoggingUtility --> Logger
+
+TimeConverters --> LoggingUtility
+
+ClockGraphics --> ClockGraphicsData
+ClockGraphics --> ClockGraphicsSharedData
+ClockGraphics --> DrawMath
+
+ClockStaticGraphics --> ClockStaticGraphicsData
+ClockStaticGraphics --> ClockGraphicsSharedData
+
+ClockData --> NotificationProvider
+ClockData --> ClockMode
+ClockData --> TimeContainer
+
+Unsubscriber --* NotificationProvider
+
+@enduml

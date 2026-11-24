@@ -6,18 +6,13 @@ namespace Clock
 {
     public partial class App : Application
     {
-        public const string COMPANY_LOGS_FOLDER = "PlaypenSoftware";
-        public const string APPLICATION_NAME = "Clock";
-
         public int WindowWidth { get; private set; }
         public int WindowHeight { get; private set; }
 
-        public static Logger? Logger { get; private set; }
-
         public App()
         {
+
             InitializeComponent();
-            Logger = new("log", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), COMPANY_LOGS_FOLDER, APPLICATION_NAME));
             LoadApplicationResources();
         }
 

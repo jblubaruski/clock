@@ -11,8 +11,8 @@ namespace Clock.ViewModels.Drawables
     /// </summary>
     internal class ClockGraphics : IDrawable
     {
-
         private readonly ClockGraphicsData DrawData = new();
+        private readonly ClockGraphicsSharedData SharedDrawData = new();
 
         /*
          * Rotations are in radians with 0 radians at the top of the clock with numbers increasing in the clockwise direction.
@@ -45,7 +45,7 @@ namespace Clock.ViewModels.Drawables
             canvas.StrokeColor = strokeColor;
             canvas.StrokeSize = strokeSize;
 
-            float distance = DrawData.RimInnerRadius - DrawData.RimStrokeSize / 2;
+            float distance = SharedDrawData.RimInnerRadius - SharedDrawData.RimStrokeSize / 2;
 
             PointF lineStart = DrawMath.GetScaledRadialLineEndPoint(canvasData.Center, distance, startScale, theta, true);
             PointF lineEnd = DrawMath.GetScaledRadialLineEndPoint(canvasData.Center, distance, endScale, theta, false);

@@ -10,6 +10,21 @@ namespace Clock.Services.Drawing
     public static class DrawMath
     {
         /// <summary>
+        /// Radians in a full rotation.
+        /// </summary>
+        public static readonly double FullRotation = 2 * Math.PI;
+
+        /// <summary>
+        /// Radians in one rotation of the hour hand.
+        /// </summary>
+        public static readonly double HourTickRotation = Math.PI / 6.0;
+
+        /// <summary>
+        /// Radians in one rotation of the minute hand.
+        /// </summary>
+        public static readonly double MinuteTickRotation = Math.PI / 30.0;
+
+        /// <summary>
         /// Returns a point a certain scaled distance away from the center of a circle.
         /// </summary>
         /// 
