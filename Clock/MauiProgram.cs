@@ -45,7 +45,7 @@ namespace Clock
                 handler.PlatformView.Resources["TextControlBorderThemeThickness"] = new Microsoft.UI.Xaml.Thickness(0);
 
                 // set focus underline color
-                var focusUnderlineBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 0, 0));
+                var focusUnderlineBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 224, 122, 95));
                 handler.PlatformView.Resources["TextControlBorderBrushFocused"] = focusUnderlineBrush;
                 handler.PlatformView.Resources["TextControlElevationBorderFocusedBrush"] = focusUnderlineBrush;
 
