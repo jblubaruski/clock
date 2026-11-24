@@ -202,7 +202,7 @@ namespace Clock.ViewModels
         /// <summary>
         /// The text entered into the enter custom time entry box.
         /// </summary>
-        internal string CustomTimeEntryText
+        public string CustomTimeEntryText
         {
             get => _customTimeEntryText;
             set => SetProperty(ref _customTimeEntryText, value);
