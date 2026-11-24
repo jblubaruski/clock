@@ -16,6 +16,8 @@ namespace Clock.ViewModels
     /// </summary>
     public partial class MainPageViewModel : ObservableObject
     {
+        // string format for a double that converts it to a decimal number string with max precision
+        private readonly string DoubleMaxPrecisionStringFormat = "0." + new string('#', 339);
         // whether or not the clock drift test logging is active
         private readonly bool ClockDriftTestLoggingActive = true;
         // tracks the number of ticks since the clock started ticking
@@ -114,23 +116,22 @@ namespace Clock.ViewModels
                 StopClock();
             }
 
-            bool clockUsesSystemTime = ClockData.CurrentMode == ClockMode.SystemTime;
+            
             DateTime currentTime = DateTime.Now;
-            TimeOnly displayTime = clockUsesSystemTime ? TimeOnly.FromDateTime(currentTime) : TimeOnly.FromDateTime(timeData.Time);
             
             if (ClockDriftTestLoggingActive)
             {
-                if (clockUsesSystemTime)
+                if (ClockData.CurrentMode == ClockMode.SystemTime)
                 {
                     ClockTicks += 1;
                     TimeSpan timeDiff = currentTime.Subtract(timeData.Time);
-                    LoggingUtility.LogTabSeparatedValueLine(false, ClockTicks.ToString(), timeDiff.TotalSeconds.ToString());
+                    LoggingUtility.LogTabSeparatedValueLine(false, ClockTicks.ToString(), timeDiff.TotalSeconds.ToString(DoubleMaxPrecisionStringFormat));
                 }
             }
 
             Dispatcher.Dispatch(() =>
             {
-                SetClockHands(displayTime);
+                SetClockHands(TimeOnly.FromDateTime(timeData.Time));
             });
         }
 
@@ -154,12 +155,6 @@ namespace Clock.ViewModels
             ClockGraphics?.SecondHandRotation = time.Second * ClockGraphicsData.MinuteTickRotation;
 
             InvalidateCanvasRequested?.Invoke();
-        }
-
-        private static async Task WaitForNextSecond()
-        {
-            int tillNextSecond_ms = (int)TimeSpan.MillisecondsPerSecond - DateTime.Now.Millisecond;
-            await Task.Delay(tillNextSecond_ms);
         }
 
         /*
@@ -224,9 +219,7 @@ namespace Clock.ViewModels
             if (ClockGraphics != null)
             {
                 ToUseSystemTimeButtonPressedState();
-
                 SetClockHands(TimeOnly.FromDateTime(DateTime.Now));
-                await WaitForNextSecond();
 
                 StartTime = TimeOnly.FromDateTime(DateTime.Now);
                 await StartClock(true);

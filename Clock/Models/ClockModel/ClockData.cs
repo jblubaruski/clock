@@ -53,15 +53,68 @@ namespace Clock.Models.ClockModel
         /// </summary>
         /// 
         /// <param name="startTime">
-        /// The clock's start time.
+        /// The clock's start time. Will be ignored is ClockMode.SystemTime is passed in for currentMode.
         /// </param>
         /// <param name="currentMode">
         /// The ClockMode this clock is running in.
         /// </param>
         public Task StartClock(DateTime startTime, ClockMode currentMode)
         {
-            StartTime = startTime;
             CurrentMode = currentMode;
+
+            if (CurrentMode == ClockMode.SystemTime)
+                return StartSystemTimeClock();
+            else if (CurrentMode == ClockMode.CustomTime)
+                return StartCustomTimeClock(startTime);
+            else
+                return Task.Run(() => { });
+        }
+
+        /// <summary>
+        /// Stops the clock from ticking.
+        /// </summary>
+        /// 
+        /// <param name="completeClockNotifications">
+        /// Tells the clock to notify all subscribers to its provider that it's done with its notifications if true.
+        /// This unsubscribes all subscribers from the clock's provider.
+        /// </param>
+        public void StopClock(bool completeClockNotifications)
+        {
+            CancellationSource.Cancel();
+
+            if (completeClockNotifications)
+                TickTransmitter.CompleteAll();
+        }
+
+        // starts a clock running in the SystemTime mode
+        private Task StartSystemTimeClock()
+        {
+            StartTime = DateTime.Now;
+
+            return Task.Run(async () =>
+            {
+                try
+                {
+                    while (!CancellationToken.IsCancellationRequested)
+                    {
+                        int timeUntilNextSecond_ms = (int)TimeSpan.MillisecondsPerSecond - DateTime.UtcNow.Millisecond;
+                        await Task.Delay(timeUntilNextSecond_ms, CancellationToken).ConfigureAwait(false);
+
+                        TickClock();
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    CancellationSource = new();
+                    CancellationToken = CancellationSource.Token;
+                }
+            }, CancellationToken);
+        }
+
+        // starts a clock running in the CustomTime mode
+        private Task StartCustomTimeClock(DateTime startTime)
+        {
+            StartTime = startTime;
             TicksSinceStart = 0;
 
             return Task.Run(async () =>
@@ -83,32 +136,18 @@ namespace Clock.Models.ClockModel
             }, CancellationToken);
         }
 
-        /// <summary>
-        /// Stops the clock from ticking.
-        /// </summary>
-        /// 
-        /// <param name="completeClockNotifications">
-        /// Tells the clock to notify all subscribers to its provider that it's done with its notifications if true.
-        /// This unsubscribes all subscribers from the clock's provider.
-        /// </param>
-        public void StopClock(bool completeClockNotifications)
-        {
-            CancellationSource.Cancel();
-
-            if (completeClockNotifications)
-                TickTransmitter.CompleteAll();
-        }
-
         // ticks the clock once every TickInterval until the clock is stopped
         private void TickClock()
         {
             if (CurrentMode == ClockMode.SystemTime)
             {
-                TimeSpan elapsedTime = DateTime.Now.Subtract(StartTime);
-                long ticksSinceStart = elapsedTime.Ticks / TickInterval.Ticks;
+                DateTime currentTime = DateTime.Now;
 
-                TimeContainer clockTime = new(StartTime.Add(TickInterval.Multiply(ticksSinceStart)));
-                TickTransmitter.NotifyAll(clockTime);
+                // round the nearest second
+                DateTime roundedTime = currentTime.AddMilliseconds(500);
+                roundedTime = new(roundedTime.Year, roundedTime.Month, roundedTime.Day, roundedTime.Hour, roundedTime.Minute, roundedTime.Second, DateTimeKind.Local);
+
+                TickTransmitter.NotifyAll(new(roundedTime));
             }
             else if (CurrentMode == ClockMode.CustomTime)
             {
