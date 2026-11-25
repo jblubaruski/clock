@@ -4,7 +4,7 @@
 
 This application is an analog clock that can either show the current time or tick from a user-set time.
 
-The program will create a log file in "%MyDocuments%\PlaypenSoftware\Clock" where errors and notifications are logged.
+The program will create a log file in "%MyDocuments%\KaitlynsSoftware\Clock" where errors and notifications are logged.
 
 ### System Requirements
 
