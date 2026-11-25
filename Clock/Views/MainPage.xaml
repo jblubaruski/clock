@@ -27,6 +27,7 @@
         </Style>
         <Style x:Key="EntryStyle" TargetType="Entry">
             <Setter Property="FontSize" Value="12"/>
+            <Setter Property="BackgroundColor" Value="White"/>
             <Setter Property="HorizontalOptions" Value="Fill"/>
             <Setter Property="VerticalOptions" Value="Fill"/>
             <Setter Property="VerticalTextAlignment" Value="Center"/>
@@ -39,7 +40,7 @@
                         <!-- enabled state -->
                         <VisualState x:Name="Normal">
                             <VisualState.Setters>
-
+                                
                             </VisualState.Setters>
                         </VisualState>
                         <!-- disabled state -->
@@ -79,15 +80,15 @@
                         <!-- disabled state -->
                         <VisualState x:Name="Disabled">
                             <VisualState.Setters>
-                                <Setter Property="TextColor" Value="#000000" />
-                                <Setter Property="BackgroundColor" Value="#FEFAE0" />
+                                <Setter Property="TextColor" Value="#949494" />
+                                <Setter Property="BackgroundColor" Value="#f2f0e4" />
                             </VisualState.Setters>
                         </VisualState>
                         <!-- pointer over state -->
                         <VisualState x:Name="PointerOver">
                             <VisualState.Setters>
                                 <Setter Property="TextColor" Value="#000000" />
-                                <Setter Property="BackgroundColor" Value="#d4a373"/>
+                                <Setter Property="BackgroundColor" Value="#ad855e"/>
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
