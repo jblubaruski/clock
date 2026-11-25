@@ -12,6 +12,6 @@ Clock requires a computer with an x86 processor and an installation of Windows 1
 
 ## Download and Installation
 
-Download clock-v1.0-win-x64.zip and extract all files to a directory of your choice.
+Download clock-v1.0-win-x64.zip in Releases and extract all files to a directory of your choice.
 Double click Clock.exe to run the program.
 You can also create a shortcut to Clock.exe by right clicking on Clock.exe, select "show more options" and select "create shortcut".
