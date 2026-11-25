@@ -8,7 +8,7 @@ namespace Clock.Services.Logging
 {
     public static class LoggingUtility
     {
-        public const string COMPANY_LOGS_FOLDER = "PlaypenSoftware";
+        public const string COMPANY_LOGS_FOLDER = "KaitlynsSoftware";
         public const string APPLICATION_NAME = "Clock";
 
         public static Logger Logger { get; private set; } = new("log", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), COMPANY_LOGS_FOLDER, APPLICATION_NAME));
